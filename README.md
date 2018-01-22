@@ -22,8 +22,29 @@ This middleware removes the raw body from the request. Best used after the reque
 ```php
 $server = new Server([
     /** Other Middleware */
-    new SessionMiddleware('CookieName', $cache),
+    new SessionMiddleware(
+        'CookieName',
+        $cache, // Instance implementing React\Cache\CacheInterface
+        [ // Optional array with cookie settings, order matters
+            0, // expiresAt, int, default
+            '', // path, string, default
+            '', // domain, string, default
+            false, // secure, bool, default
+            false // httpOnly, bool, default
+        ], 
+    ),
     /** Other Middleware */
+    function (ServerRequestInterface $request) {
+        $session = $request->getAttribute(SessionMiddleware::ATTRIBUTE_NAME);
+
+        // Overwrite session contents, the details of changing specific keys is up to you
+        $session->setContents([
+            'foo' => 'bar',
+        ]);
+        
+        // Get session contents
+        var_export($session->getContents()); // Prints something like: ['foo' = 'bar']
+    }
 ]);
 ```
 
