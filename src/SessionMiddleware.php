@@ -17,7 +17,7 @@ final class SessionMiddleware
     /**
      * @var string
      */
-    private $cookieName;
+    private $cookieName = '';
 
     /**
      * @var CacheInterface
@@ -25,13 +25,20 @@ final class SessionMiddleware
     private $cache;
 
     /**
+     * @var array
+     */
+    private $cookieParams = [];
+
+    /**
      * @param string         $cookieName
      * @param CacheInterface $cache
+     * @param array          $cookieParams
      */
-    public function __construct(string $cookieName, CacheInterface $cache)
+    public function __construct(string $cookieName, CacheInterface $cache, array $cookieParams = [])
     {
         $this->cookieName = $cookieName;
         $this->cache = $cache;
+        $this->cookieParams = $cookieParams;
     }
 
     public function __invoke(ServerRequestInterface $request, callable $next)
@@ -46,7 +53,7 @@ final class SessionMiddleware
 
             return resolve($next($request))->then(function (ResponseInterface $response) use ($id, $session) {
                 $this->cache->set($id, $session->getContents());
-                $cookie = new SetCookie($this->cookieName, $id);
+                $cookie = new SetCookie($this->cookieName, $id, ...$this->cookieParams);
                 $response = $cookie->addToResponse($response);
 
                 return $response;

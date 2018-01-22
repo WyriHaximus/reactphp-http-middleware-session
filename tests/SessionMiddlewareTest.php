@@ -3,14 +3,134 @@
 namespace WyriHaximus\React\Tests\Http\Middleware;
 
 use ApiClients\Tools\TestUtilities\TestCase;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use React\Cache\ArrayCache;
+use RingCentral\Psr7\Request;
 use RingCentral\Psr7\Response;
 use RingCentral\Psr7\ServerRequest;
 use WyriHaximus\React\Http\Middleware\SessionMiddleware;
 
 final class SessionMiddlewareTest extends TestCase
 {
+    public function provideCookieLines()
+    {
+        yield [
+            [
+                10,
+            ],
+            [
+                'expires=Thu, 01-Jan-1970 00:00:10 GMT',
+            ],
+        ];
+
+        yield [
+            [
+                10,
+                '/example/',
+            ],
+            [
+                'expires=Thu, 01-Jan-1970 00:00:10 GMT',
+                'path=/example/',
+            ],
+        ];
+
+        yield [
+            [
+                10,
+                '/example/',
+                'www.example.com',
+            ],
+            [
+                'expires=Thu, 01-Jan-1970 00:00:10 GMT',
+                'path=/example/',
+                'domain=www.example.com',
+            ],
+        ];
+
+        yield [
+            [
+                10,
+                '/example/',
+                'www.example.com',
+                true,
+            ],
+            [
+                'expires=Thu, 01-Jan-1970 00:00:10 GMT',
+                'path=/example/',
+                'domain=www.example.com',
+                'secure',
+            ],
+        ];
+
+        yield [
+            [
+                10,
+                '/example/',
+                'www.example.com',
+                false,
+            ],
+            [
+                'expires=Thu, 01-Jan-1970 00:00:10 GMT',
+                'path=/example/',
+                'domain=www.example.com',
+            ],
+        ];
+
+        yield [
+            [
+                10,
+                '/example/',
+                'www.example.com',
+                true,
+                true,
+            ],
+            [
+                'expires=Thu, 01-Jan-1970 00:00:10 GMT',
+                'path=/example/',
+                'domain=www.example.com',
+                'secure',
+                'httponly',
+            ],
+        ];
+
+        yield [
+            [
+                10,
+                '/example/',
+                'www.example.com',
+                false,
+                false,
+            ],
+            [
+                'expires=Thu, 01-Jan-1970 00:00:10 GMT',
+                'path=/example/',
+                'domain=www.example.com',
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider provideCookieLines
+     */
+    public function testSetCookieLine(array $cookieParams, array $cookieLineChunks)
+    {
+        $next = function (ServerRequestInterface $request) {
+            return new Response();
+        };
+
+        $cache = new ArrayCache();
+        $middleware = new SessionMiddleware('Elmo', $cache, $cookieParams);
+
+        /** @var ResponseInterface $response */
+        $response = $this->await($middleware(new ServerRequest('GET', 'https://www.example.com'), $next));
+
+        $cookieChunks = explode('; ', $response->getHeaderLine('Set-Cookie'));
+        array_shift($cookieChunks);
+
+        self::assertSame($cookieLineChunks, $cookieChunks);
+    }
+
     public function testSessionExists()
     {
         $contents = ['Sand'];
