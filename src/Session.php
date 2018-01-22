@@ -19,6 +19,14 @@ final class Session
     }
 
     /**
+     * @param array $contents
+     */
+    public function setContents(array $contents)
+    {
+        $this->contents = $contents;
+    }
+
+    /**
      * @return array
      */
     public function getContents(): array
