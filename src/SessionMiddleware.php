@@ -38,11 +38,9 @@ final class SessionMiddleware
     {
         $id = $this->getId($request);
 
-        return $this->cache->get($id)->then(function ($sessionData) use ($next, $request, $id) {
-            if ($sessionData === false) {
-                $sessionData = [];
-            }
-
+        return $this->cache->get($id)->otherwise(function () {
+            return resolve([]);
+        })->then(function ($sessionData) use ($next, $request, $id) {
             $session = new Session($sessionData);
             $request = $request->withAttribute(self::ATTRIBUTE_NAME, $session);
 
