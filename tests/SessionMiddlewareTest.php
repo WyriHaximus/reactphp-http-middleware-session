@@ -6,7 +6,6 @@ use ApiClients\Tools\TestUtilities\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use React\Cache\ArrayCache;
-use RingCentral\Psr7\Request;
 use RingCentral\Psr7\Response;
 use RingCentral\Psr7\ServerRequest;
 use WyriHaximus\React\Http\Middleware\SessionMiddleware;
@@ -106,6 +105,22 @@ final class SessionMiddlewareTest extends TestCase
                 'expires=Thu, 01-Jan-1970 00:00:10 GMT',
                 'path=/example/',
                 'domain=www.example.com',
+            ],
+        ];
+
+        yield [
+            [
+                10,
+                '/example/',
+                'www.example.com',
+                false,
+                true,
+            ],
+            [
+                'expires=Thu, 01-Jan-1970 00:00:10 GMT',
+                'path=/example/',
+                'domain=www.example.com',
+                'httponly',
             ],
         ];
     }
