@@ -9,11 +9,17 @@ final class SessionTest extends TestCase
 {
     public function testData()
     {
-        $data = [
+        $dataFirst = [
             'a' => 'b',
         ];
 
-        $session = new Session($data);
-        self::assertSame($data, $session->getContents());
+        $dataSecond = [
+            'b' => 'a',
+        ];
+
+        $session = new Session($dataFirst);
+        self::assertSame($dataFirst, $session->getContents());
+        $session->setContents($dataSecond);
+        self::assertSame($dataSecond, $session->getContents());
     }
 }
