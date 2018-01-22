@@ -44,6 +44,8 @@ $server = new Server([
         
         // Get session contents
         var_export($session->getContents()); // Prints something like: ['foo' = 'bar']
+        
+        return new Response();
     }
 ]);
 ```
