@@ -29,4 +29,37 @@ final class SessionTest extends TestCase
         $session->setContents($dataSecond);
         self::assertSame($dataSecond, $session->getContents());
     }
+
+    public function testState()
+    {
+        $session = new Session('', [], new RandomBytes());
+        self::assertFalse($session->isActive());
+        self::assertSame('', $session->getId());
+        self::assertSame([], $session->getContents());
+
+        $session->begin();
+        $id = $session->getId();
+        self::assertTrue($session->isActive());
+        self::assertTrue(strlen($id) >= 1);
+        self::assertSame([], $session->getContents());
+
+        $session->setContents(['foo' => 'bar']);
+        self::assertTrue($session->isActive());
+        self::assertTrue(strlen($session->getId()) >= 1);
+        self::assertSame($id, $session->getId());
+        self::assertSame(['foo' => 'bar'], $session->getContents());
+
+        $session->regenerate();
+        self::assertTrue($session->isActive());
+        self::assertTrue(strlen($session->getId()) >= 1);
+        self::assertNotSame($id, $session->getId());
+        self::assertSame(['foo' => 'bar'], $session->getContents());
+
+        $id = $session->getId();
+        $session->end();
+        self::assertFalse($session->isActive());
+        self::assertTrue(strlen($session->getId()) == 0);
+        self::assertNotSame($id, $session->getId());
+        self::assertSame([], $session->getContents());
+    }
 }
