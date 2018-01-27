@@ -7,6 +7,7 @@ use HansOtt\PSR7Cookies\SetCookie;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use React\Cache\CacheInterface;
+use React\Promise\PromiseInterface;
 use Throwable;
 use WyriHaximus\React\Http\Middleware\SessionId\RandomBytes;
 use function React\Promise\resolve;
@@ -58,17 +59,16 @@ final class SessionMiddleware
 
     public function __invoke(ServerRequestInterface $request, callable $next)
     {
-        $id = $this->getId($request);
-
-        return $this->cache->get($id)->otherwise(function () {
-            return resolve([]);
-        })->then(function ($sessionData) use ($next, $request, $id) {
-            $session = new Session($sessionData);
+        return $this->fetchSessionFromRequest($request)->then(function (Session $session) use ($next, $request) {
+            $requestSessionId = $session->getId();
             $request = $request->withAttribute(self::ATTRIBUTE_NAME, $session);
 
-            return resolve($next($request))->then(function (ResponseInterface $response) use ($id, $session) {
-                $this->cache->set($id, $session->getContents());
-                $cookie = new SetCookie($this->cookieName, $id, ...$this->cookieParams);
+            return resolve(
+                $next($request)
+            )->then(function (ResponseInterface $response) use ($session, $requestSessionId) {
+                $this->updateCache($session->getId(), $requestSessionId, $session->getContents());
+
+                $cookie = new SetCookie($this->cookieName, $session->getId(), ...$this->cookieParams);
                 $response = $cookie->addToResponse($response);
 
                 return $response;
@@ -76,18 +76,43 @@ final class SessionMiddleware
         });
     }
 
-    private function getId(ServerRequestInterface $request): string
+    private function fetchSessionFromRequest(ServerRequestInterface $request): PromiseInterface
     {
+        $id = '';
         $cookies = RequestCookies::createFromRequest($request);
 
         try {
-            if ($cookies->has($this->cookieName)) {
-                return $cookies->get($this->cookieName)->getValue();
+            if (!$cookies->has($this->cookieName)) {
+                return resolve(new Session($id, [], $this->sessionId));
             }
+
+            $id = $cookies->get($this->cookieName)->getValue();
+
+            return $this->fetchSessionDataFromCache($id)->then(function (array $sessionData) use ($id) {
+                return new Session($id, $sessionData, $this->sessionId);
+            });
         } catch (Throwable $et) {
             // Do nothing, only a not found will be thrown so generating our own id now
         }
 
-        return $this->sessionId->generate();
+        return resolve(new Session($id, [], $this->sessionId));
+    }
+
+    private function fetchSessionDataFromCache(string $id): PromiseInterface
+    {
+        return $this->cache->get($id)->otherwise(function () {
+            return resolve([]);
+        });
+    }
+
+    private function updateCache(string $currentSessionId, string $requestSessionId, array $contents)
+    {
+        if ($currentSessionId !== '') {
+            return $this->cache->set($currentSessionId, $contents);
+        }
+
+        if ($currentSessionId === '' && $requestSessionId !== '') {
+            return $this->cache->remove($requestSessionId);
+        }
     }
 }

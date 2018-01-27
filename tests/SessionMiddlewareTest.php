@@ -146,6 +146,15 @@ final class SessionMiddlewareTest extends TestCase
         self::assertSame($cookieLineChunks, $cookieChunks);
     }
 
+    public function testSessionDoesntExists()
+    {
+        $cookieName = 'CookieMonster';
+        $cache = new ArrayCache();
+        $middleware = new SessionMiddleware($cookieName, $cache);
+
+
+    }
+
     public function testSessionExists()
     {
         $contents = ['Sand'];
