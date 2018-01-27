@@ -2,9 +2,6 @@
 
 namespace WyriHaximus\React\Http\Middleware;
 
-use const PHP_SESSION_NONE;
-use const PHP_SESSION_ACTIVE;
-
 final class Session
 {
     /**
@@ -23,9 +20,9 @@ final class Session
     private $sessionId = [];
 
     /**
-     * @var PHP_SESSION_NONE|PHP_SESSION_ACTIVE
+     * @var int
      */
-    private $status = PHP_SESSION_NONE;
+    private $status = \PHP_SESSION_NONE;
 
     /**
      * @param string             $id
@@ -39,7 +36,7 @@ final class Session
         $this->sessionId = $sessionId;
 
         if ($this->id !== '') {
-            $this->status = PHP_SESSION_ACTIVE;
+            $this->status = \PHP_SESSION_ACTIVE;
         }
     }
 
@@ -69,11 +66,11 @@ final class Session
 
     public function begin()
     {
-        if ($this->status === PHP_SESSION_ACTIVE) {
+        if ($this->status === \PHP_SESSION_ACTIVE) {
             return true;
         }
 
-        $this->status = PHP_SESSION_ACTIVE;
+        $this->status = \PHP_SESSION_ACTIVE;
 
         if ($this->id === '') {
             $this->id = $this->sessionId->generate();
@@ -82,11 +79,11 @@ final class Session
 
     public function end()
     {
-        if ($this->status === PHP_SESSION_NONE) {
+        if ($this->status === \PHP_SESSION_NONE) {
             return true;
         }
 
-        $this->status = PHP_SESSION_NONE;
+        $this->status = \PHP_SESSION_NONE;
         $this->id = '';
     }
 
@@ -95,13 +92,13 @@ final class Session
      */
     public function isActive(): bool
     {
-        return $this->status === PHP_SESSION_ACTIVE;
+        return $this->status === \PHP_SESSION_ACTIVE;
     }
 
     public function regenerate()
     {
         // Can only regenerate active sessions
-        if ($this->status !== PHP_SESSION_ACTIVE) {
+        if ($this->status !== \PHP_SESSION_ACTIVE) {
             return false;
         }
 
