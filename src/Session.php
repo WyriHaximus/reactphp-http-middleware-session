@@ -85,6 +85,7 @@ final class Session
 
         $this->status = \PHP_SESSION_NONE;
         $this->id = '';
+        $this->contents = [];
     }
 
     /**
