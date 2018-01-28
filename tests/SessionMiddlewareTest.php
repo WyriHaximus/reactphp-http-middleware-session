@@ -62,7 +62,7 @@ final class SessionMiddlewareTest extends TestCase
                 10,
             ],
             [
-                'expires=Thu, 01-Jan-1970 00:00:10 GMT',
+                'expires=' . gmdate('D, d-M-Y H:i:s T', time() + 10),
             ],
         ];
 
@@ -72,7 +72,7 @@ final class SessionMiddlewareTest extends TestCase
                 '/example/',
             ],
             [
-                'expires=Thu, 01-Jan-1970 00:00:10 GMT',
+                'expires=' . gmdate('D, d-M-Y H:i:s T', time() + 10),
                 'path=/example/',
             ],
         ];
@@ -84,7 +84,7 @@ final class SessionMiddlewareTest extends TestCase
                 'www.example.com',
             ],
             [
-                'expires=Thu, 01-Jan-1970 00:00:10 GMT',
+                'expires=' . gmdate('D, d-M-Y H:i:s T', time() + 10),
                 'path=/example/',
                 'domain=www.example.com',
             ],
@@ -98,7 +98,7 @@ final class SessionMiddlewareTest extends TestCase
                 true,
             ],
             [
-                'expires=Thu, 01-Jan-1970 00:00:10 GMT',
+                'expires=' . gmdate('D, d-M-Y H:i:s T', time() + 10),
                 'path=/example/',
                 'domain=www.example.com',
                 'secure',
@@ -113,7 +113,7 @@ final class SessionMiddlewareTest extends TestCase
                 false,
             ],
             [
-                'expires=Thu, 01-Jan-1970 00:00:10 GMT',
+                'expires=' . gmdate('D, d-M-Y H:i:s T', time() + 10),
                 'path=/example/',
                 'domain=www.example.com',
             ],
@@ -128,7 +128,7 @@ final class SessionMiddlewareTest extends TestCase
                 true,
             ],
             [
-                'expires=Thu, 01-Jan-1970 00:00:10 GMT',
+                'expires=' . gmdate('D, d-M-Y H:i:s T', time() + 10),
                 'path=/example/',
                 'domain=www.example.com',
                 'secure',
@@ -145,7 +145,7 @@ final class SessionMiddlewareTest extends TestCase
                 false,
             ],
             [
-                'expires=Thu, 01-Jan-1970 00:00:10 GMT',
+                'expires=' . gmdate('D, d-M-Y H:i:s T', time() + 10),
                 'path=/example/',
                 'domain=www.example.com',
             ],
@@ -160,7 +160,7 @@ final class SessionMiddlewareTest extends TestCase
                 true,
             ],
             [
-                'expires=Thu, 01-Jan-1970 00:00:10 GMT',
+                'expires=' . gmdate('D, d-M-Y H:i:s T', time() + 10),
                 'path=/example/',
                 'domain=www.example.com',
                 'httponly',
@@ -174,6 +174,8 @@ final class SessionMiddlewareTest extends TestCase
     public function testSetCookieLine(array $cookieParams, array $cookieLineChunks)
     {
         $next = function (ServerRequestInterface $request) {
+            $request->getAttribute(SessionMiddleware::ATTRIBUTE_NAME)->begin();
+
             return new Response();
         };
 
@@ -244,8 +246,7 @@ final class SessionMiddlewareTest extends TestCase
     {
         $contents = ['Sand'];
         $cookieName = 'CookieMonster';
-        $cache = new ArrayCache();
-        $cache->set('cookies', ['Chocolate Chip']);
+        $this->cache->set('cookies', ['Chocolate Chip']);
         $middleware = new SessionMiddleware($cookieName, $this->cache);
 
         $request = (new ServerRequest(
@@ -301,6 +302,6 @@ final class SessionMiddlewareTest extends TestCase
 
         self::assertCount(0, $this->cache->getData());
         self::assertSame(false, $session->isActive());
-        self::assertSame($cookieName . '=', $response->getHeaderLine('Set-Cookie'));
+        self::assertSame($cookieName . '=deleted; expires=Thu, 01-Jan-1970 00:00:01 GMT', $response->getHeaderLine('Set-Cookie'));
     }
 }

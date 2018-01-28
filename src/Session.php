@@ -20,6 +20,11 @@ final class Session
     private $sessionId = [];
 
     /**
+     * @var string[]
+     */
+    private $oldIds = [];
+
+    /**
      * @var int
      */
     private $status = \PHP_SESSION_NONE;
@@ -64,6 +69,14 @@ final class Session
         return $this->contents;
     }
 
+    /**
+     * @return string[]
+     */
+    public function getOldIds(): array
+    {
+        return $this->oldIds;
+    }
+
     public function begin()
     {
         if ($this->status === \PHP_SESSION_ACTIVE) {
@@ -83,6 +96,7 @@ final class Session
             return true;
         }
 
+        $this->oldIds[] = $this->id;
         $this->status = \PHP_SESSION_NONE;
         $this->id = '';
         $this->contents = [];
@@ -103,6 +117,7 @@ final class Session
             return false;
         }
 
+        $this->oldIds[] = $this->id;
         $this->id = $this->sessionId->generate();
 
         return true;
