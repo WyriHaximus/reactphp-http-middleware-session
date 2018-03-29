@@ -10,7 +10,7 @@ final class RandomBytesTest extends TestCase
     public function provideSizes()
     {
         yield [RandomBytes::DEFAULT_LENGTH];
-        foreach (range(1, 1024) as $size) {
+        foreach (range(1, 64) as $size) {
             yield [$size];
         }
     }

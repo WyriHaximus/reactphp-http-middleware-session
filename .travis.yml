@@ -59,8 +59,8 @@ install:
 
 ## Run the actual test
 script:
-  - if [ -z "$qaExtended" ]; then make ci; fi;
-  - if [ "$qaExtended" = "true" ]; then make ci-extended; fi;
+  - if [ -z "$qaExtended" ]; then travis_retry make ci; fi;
+  - if [ "$qaExtended" = "true" ]; then travis_retry make ci-extended; fi;
 
 ## Gather coverage and set it to coverage servers
 after_script: if [ "$qaExtended" = "true" ]; then make ci-coverage; fi;
