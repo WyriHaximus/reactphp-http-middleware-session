@@ -7,17 +7,17 @@ final class Session
     /**
      * @var string
      */
-    private $id = '';
+    private $id;
 
     /**
      * @var array
      */
-    private $contents = [];
+    private $contents;
 
     /**
      * @var SessionIdInterface
      */
-    private $sessionId = [];
+    private $sessionId;
 
     /**
      * @var string[]
@@ -41,7 +41,7 @@ final class Session
         $this->sessionId = $sessionId;
 
         if ($this->id !== '') {
-            $this->status = \PHP_SESSION_ACTIVE;
+            $this->status = PHP_SESSION_ACTIVE;
         }
     }
 
@@ -110,7 +110,7 @@ final class Session
         return $this->status === \PHP_SESSION_ACTIVE;
     }
 
-    public function regenerate()
+    public function regenerate(): bool
     {
         // Can only regenerate active sessions
         if ($this->status !== \PHP_SESSION_ACTIVE) {
