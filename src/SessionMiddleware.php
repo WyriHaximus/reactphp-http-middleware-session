@@ -27,7 +27,7 @@ final class SessionMiddleware
     /**
      * @var string
      */
-    private $cookieName = '';
+    private $cookieName;
 
     /**
      * @var CacheInterface
@@ -37,7 +37,7 @@ final class SessionMiddleware
     /**
      * @var array
      */
-    private $cookieParams = [];
+    private $cookieParams;
 
     /**
      * @var SessionIdInterface
@@ -45,9 +45,10 @@ final class SessionMiddleware
     private $sessionId;
 
     /**
-     * @param string         $cookieName
-     * @param CacheInterface $cache
-     * @param array          $cookieParams
+     * @param string                  $cookieName
+     * @param CacheInterface          $cache
+     * @param array                   $cookieParams
+     * @param SessionIdInterface|null $sessionId
      */
     public function __construct(
         string $cookieName,
