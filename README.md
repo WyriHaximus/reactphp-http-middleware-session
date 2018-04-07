@@ -15,7 +15,8 @@ To install via [Composer](http://getcomposer.org/), use the command below, it wi
 composer require wyrihaximus/react-http-middleware-session
 ```
 
-This middleware removes the raw body from the request. Best used after the request body has been parsed.
+This middleware takes care of session handling. It uses [`react/cache`](https://reactphp.org/cache/) for storage or 
+any cache handler implementing [`React\Cache\CacheInterface`](https://github.com/reactphp/react/wiki/Users#cache-implementations).
 
 # Usage
 
