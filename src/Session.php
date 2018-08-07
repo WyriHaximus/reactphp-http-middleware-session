@@ -134,9 +134,9 @@ final class Session
     }
 
     /**
-     * @param array $session
-     * @return Session
+     * @param  array                     $session
      * @throws \InvalidArgumentException
+     * @return Session
      */
     public function fromArray(array $session): self
     {
