@@ -51,6 +51,17 @@ $server = new Server([
 ]);
 ```
 
+## To/From array
+
+In case you need to pass a session into a child process it has `toArray` and `fromArray` methods: 
+
+```php
+$array = $session->toArray();
+// Transfer to child process
+$session = (new Session('', [], new RandomBytes()))->fromArray($array);
+// The same can be done transferring changes back to the parent
+```
+
 # License
 
 The MIT License (MIT)
