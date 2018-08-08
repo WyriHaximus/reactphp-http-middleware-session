@@ -57,6 +57,17 @@ Using this middleware together with [`wyrihaximus/react-http-middleware-response
 please take a look at [`wyrihaximus/react-http-middleware-response-cache-session-cache-configuration`](https://github.com/WyriHaximus/reactphp-http-middleware-response-cache-session-cache-configuration) to 
 ensure you don't cache responses from users with active sessions.
 
+## To/From array
+
+In case you need to pass a session into a child process it has `toArray` and `fromArray` methods: 
+
+```php
+$array = $session->toArray();
+// Transfer to child process
+$session = (new Session('', [], new RandomBytes()))->fromArray($array);
+// The same can be done transferring changes back to the parent
+```
+
 # License
 
 The MIT License (MIT)

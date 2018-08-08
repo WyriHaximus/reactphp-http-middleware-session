@@ -74,4 +74,36 @@ final class SessionTest extends TestCase
         ], $session->getOldIds());
         self::assertSame([], $session->getContents());
     }
+
+    public function testToFromArray()
+    {
+        $session = new Session('', [], new RandomBytes());
+
+        self::assertSame(
+            [
+                'id' => '',
+                'contents' => [],
+                'oldIds' => [],
+                'status' => 1,
+            ],
+            $session->toArray()
+        );
+
+        $session->begin();
+
+        self::assertSame(
+            [
+                'id' => $session->getId(),
+                'contents' => [],
+                'oldIds' => [],
+                'status' => 2,
+            ],
+            $session->toArray()
+        );
+
+        $array = $session->toArray();
+        $newSession = $session->fromArray($array);
+        self::assertNotSame($session, $newSession);
+        self::assertSame($array, $newSession->toArray());
+    }
 }

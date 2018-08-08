@@ -122,4 +122,34 @@ final class Session
 
         return true;
     }
+
+    public function toArray(): array
+    {
+        return [
+            'id' => $this->id,
+            'contents' => $this->contents,
+            'oldIds' => $this->oldIds,
+            'status' => $this->status,
+        ];
+    }
+
+    /**
+     * @param  array                     $session
+     * @throws \InvalidArgumentException
+     * @return Session
+     */
+    public function fromArray(array $session): self
+    {
+        if (!isset($session['id']) || !isset($session['contents']) || !isset($session['oldIds']) || !isset($session['oldIds'])) {
+            throw new \InvalidArgumentException('Session array most contain "id", "contents", "oldIds", and "status".');
+        }
+
+        $clone = clone $this;
+        $clone->id = $session['id'];
+        $clone->contents = $session['contents'];
+        $clone->oldIds = $session['oldIds'];
+        $clone->status = $session['status'];
+
+        return $clone;
+    }
 }
