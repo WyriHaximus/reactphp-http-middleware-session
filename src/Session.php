@@ -145,15 +145,15 @@ final class Session
             throw new \InvalidArgumentException('Session array most contain "id", "contents", "oldIds", and "status".');
         }
 
-        $clone = $this;
+        $self = $this;
         if ($clone === true) {
-            $clone = clone $this;
+            $self = clone $this;
         }
-        $clone->id = $session['id'];
-        $clone->contents = $session['contents'];
-        $clone->oldIds = $session['oldIds'];
-        $clone->status = $session['status'];
+        $self->id = $session['id'];
+        $self->contents = $session['contents'];
+        $self->oldIds = $session['oldIds'];
+        $self->status = $session['status'];
 
-        return $clone;
+        return $self;
     }
 }
