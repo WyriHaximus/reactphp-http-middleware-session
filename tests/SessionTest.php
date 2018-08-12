@@ -106,4 +106,36 @@ final class SessionTest extends TestCase
         self::assertNotSame($session, $newSession);
         self::assertSame($array, $newSession->toArray());
     }
+
+    public function testToFromArrayNoClone()
+    {
+        $session = new Session('', [], new RandomBytes());
+
+        self::assertSame(
+            [
+                'id' => '',
+                'contents' => [],
+                'oldIds' => [],
+                'status' => 1,
+            ],
+            $session->toArray()
+        );
+
+        $session->begin();
+
+        self::assertSame(
+            [
+                'id' => $session->getId(),
+                'contents' => [],
+                'oldIds' => [],
+                'status' => 2,
+            ],
+            $session->toArray()
+        );
+
+        $array = $session->toArray();
+        $newSession = $session->fromArray($array);
+        self::assertSame($session, $newSession);
+        self::assertSame($array, $newSession->toArray());
+    }
 }

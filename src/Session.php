@@ -135,16 +135,20 @@ final class Session
 
     /**
      * @param  array                     $session
+     * @param  bool                      $clone
      * @throws \InvalidArgumentException
      * @return Session
      */
-    public function fromArray(array $session): self
+    public function fromArray(array $session, bool $clone = true): self
     {
         if (!isset($session['id']) || !isset($session['contents']) || !isset($session['oldIds']) || !isset($session['oldIds'])) {
             throw new \InvalidArgumentException('Session array most contain "id", "contents", "oldIds", and "status".');
         }
 
-        $clone = clone $this;
+        $clone = $this;
+        if ($clone === true) {
+            $clone = clone $this;
+        }
         $clone->id = $session['id'];
         $clone->contents = $session['contents'];
         $clone->oldIds = $session['oldIds'];
