@@ -134,7 +134,7 @@ final class SessionTest extends TestCase
         );
 
         $array = $session->toArray();
-        $newSession = $session->fromArray($array);
+        $newSession = $session->fromArray($array, false);
         self::assertSame($session, $newSession);
         self::assertSame($array, $newSession->toArray());
     }
