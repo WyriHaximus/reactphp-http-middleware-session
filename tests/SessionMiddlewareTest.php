@@ -10,7 +10,6 @@ use React\Cache\CacheInterface;
 use RingCentral\Psr7\Response;
 use RingCentral\Psr7\ServerRequest;
 use WyriHaximus\React\Http\Middleware\SessionMiddleware;
-use function React\Promise\reject;
 use function React\Promise\resolve;
 
 final class SessionMiddlewareTest extends TestCase
@@ -34,21 +33,21 @@ final class SessionMiddlewareTest extends TestCase
                 return $this->data;
             }
 
-            public function get($key)
+            public function get($key, $default = null)
             {
                 if (!isset($this->data[$key])) {
-                    return reject();
+                    return resolve($default);
                 }
 
                 return resolve($this->data[$key]);
             }
 
-            public function set($key, $value)
+            public function set($key, $value, $ttl = null)
             {
                 $this->data[$key] = $value;
             }
 
-            public function remove($key)
+            public function delete($key)
             {
                 unset($this->data[$key]);
             }

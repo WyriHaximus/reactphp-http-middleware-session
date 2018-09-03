@@ -113,7 +113,13 @@ final class SessionMiddleware
             return resolve([]);
         }
 
-        return $this->cache->get($id)->otherwise(function () {
+        return $this->cache->get($id)->then(function ($result) {
+            if ($result === null) {
+                return resolve([]);
+            }
+
+            return $result;
+        }, function () {
             return resolve([]);
         });
     }
@@ -121,7 +127,7 @@ final class SessionMiddleware
     private function updateCache(Session $session): PromiseInterface
     {
         foreach ($session->getOldIds() as $oldId) {
-            $this->cache->remove($oldId);
+            $this->cache->delete($oldId);
         }
 
         if ($session->isActive()) {
