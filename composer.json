@@ -17,7 +17,7 @@
         "react/promise": "^2.5"
     },
     "require-dev": {
-        "api-clients/test-utilities": "^4.2",
+        "api-clients/test-utilities": "^5.2",
         "ringcentral/psr7": "^1.2.2"
     },
     "autoload": {

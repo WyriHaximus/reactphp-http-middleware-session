@@ -58,7 +58,7 @@ final class SessionMiddleware
     ) {
         $this->cookieName = $cookieName;
         $this->cache = $cache;
-        $this->cookieParams = array_replace(self::DEFAULT_COOKIE_PARAMS, $cookieParams);
+        $this->cookieParams = \array_replace(self::DEFAULT_COOKIE_PARAMS, $cookieParams);
 
         if ($sessionId === null) {
             $sessionId = new RandomBytes();
@@ -144,7 +144,7 @@ final class SessionMiddleware
         if ($session->isActive()) {
             // Only set time when expires is set in the future
             if ($cookieParams[0] > 0) {
-                $cookieParams[0] += time();
+                $cookieParams[0] += \time();
             }
 
             return new SetCookie($this->cookieName, $session->getId(), ...$cookieParams);

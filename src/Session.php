@@ -56,7 +56,7 @@ final class Session
     /**
      * @param array $contents
      */
-    public function setContents(array $contents)
+    public function setContents(array $contents): void
     {
         $this->contents = $contents;
     }
