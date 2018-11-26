@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9731977107375e0ac454037da0a8cc4b",
+    "content-hash": "25028e47bc83bbc457ad716e67860c59",
     "packages": [
         {
             "name": "evenement/evenement",
@@ -51,16 +51,16 @@
         },
         {
             "name": "hansott/psr7-cookies",
-            "version": "1.0.1",
+            "version": "2.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/hansott/psr7-cookies.git",
-                "reference": "2d734eec9272fe268db25212571fcd7b7bc25767"
+                "reference": "53a1ee8ae13a495aff2891849b607519c887b6ca"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/hansott/psr7-cookies/zipball/2d734eec9272fe268db25212571fcd7b7bc25767",
-                "reference": "2d734eec9272fe268db25212571fcd7b7bc25767",
+                "url": "https://api.github.com/repos/hansott/psr7-cookies/zipball/53a1ee8ae13a495aff2891849b607519c887b6ca",
+                "reference": "53a1ee8ae13a495aff2891849b607519c887b6ca",
                 "shasum": ""
             },
             "require": {
@@ -106,7 +106,7 @@
                 "psr7-cookies",
                 "setcookie"
             ],
-            "time": "2016-07-10T09:41:06+00:00"
+            "time": "2018-03-11T21:42:03+00:00"
         },
         {
             "name": "psr/http-message",
