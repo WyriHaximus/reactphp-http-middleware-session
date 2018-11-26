@@ -12,6 +12,9 @@ use RingCentral\Psr7\ServerRequest;
 use WyriHaximus\React\Http\Middleware\SessionMiddleware;
 use function React\Promise\resolve;
 
+/**
+ * @internal
+ */
 final class SessionMiddlewareTest extends TestCase
 {
     /**
@@ -19,7 +22,7 @@ final class SessionMiddlewareTest extends TestCase
      */
     private $cache;
 
-    public function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->cache = new class() implements CacheInterface {
@@ -42,12 +45,12 @@ final class SessionMiddlewareTest extends TestCase
                 return resolve($this->data[$key]);
             }
 
-            public function set($key, $value, $ttl = null)
+            public function set($key, $value, $ttl = null): void
             {
                 $this->data[$key] = $value;
             }
 
-            public function delete($key)
+            public function delete($key): void
             {
                 unset($this->data[$key]);
             }
@@ -61,7 +64,7 @@ final class SessionMiddlewareTest extends TestCase
                 10,
             ],
             [
-                'expires=' . gmdate('D, d-M-Y H:i:s T', time() + 10),
+                'expires=' . \gmdate('D, d-M-Y H:i:s T', \time() + 10),
             ],
         ];
 
@@ -71,7 +74,7 @@ final class SessionMiddlewareTest extends TestCase
                 '/example/',
             ],
             [
-                'expires=' . gmdate('D, d-M-Y H:i:s T', time() + 10),
+                'expires=' . \gmdate('D, d-M-Y H:i:s T', \time() + 10),
                 'path=/example/',
             ],
         ];
@@ -83,7 +86,7 @@ final class SessionMiddlewareTest extends TestCase
                 'www.example.com',
             ],
             [
-                'expires=' . gmdate('D, d-M-Y H:i:s T', time() + 10),
+                'expires=' . \gmdate('D, d-M-Y H:i:s T', \time() + 10),
                 'path=/example/',
                 'domain=www.example.com',
             ],
@@ -97,7 +100,7 @@ final class SessionMiddlewareTest extends TestCase
                 true,
             ],
             [
-                'expires=' . gmdate('D, d-M-Y H:i:s T', time() + 10),
+                'expires=' . \gmdate('D, d-M-Y H:i:s T', \time() + 10),
                 'path=/example/',
                 'domain=www.example.com',
                 'secure',
@@ -112,7 +115,7 @@ final class SessionMiddlewareTest extends TestCase
                 false,
             ],
             [
-                'expires=' . gmdate('D, d-M-Y H:i:s T', time() + 10),
+                'expires=' . \gmdate('D, d-M-Y H:i:s T', \time() + 10),
                 'path=/example/',
                 'domain=www.example.com',
             ],
@@ -127,7 +130,7 @@ final class SessionMiddlewareTest extends TestCase
                 true,
             ],
             [
-                'expires=' . gmdate('D, d-M-Y H:i:s T', time() + 10),
+                'expires=' . \gmdate('D, d-M-Y H:i:s T', \time() + 10),
                 'path=/example/',
                 'domain=www.example.com',
                 'secure',
@@ -144,7 +147,7 @@ final class SessionMiddlewareTest extends TestCase
                 false,
             ],
             [
-                'expires=' . gmdate('D, d-M-Y H:i:s T', time() + 10),
+                'expires=' . \gmdate('D, d-M-Y H:i:s T', \time() + 10),
                 'path=/example/',
                 'domain=www.example.com',
             ],
@@ -159,7 +162,7 @@ final class SessionMiddlewareTest extends TestCase
                 true,
             ],
             [
-                'expires=' . gmdate('D, d-M-Y H:i:s T', time() + 10),
+                'expires=' . \gmdate('D, d-M-Y H:i:s T', \time() + 10),
                 'path=/example/',
                 'domain=www.example.com',
                 'httponly',
@@ -170,7 +173,7 @@ final class SessionMiddlewareTest extends TestCase
     /**
      * @dataProvider provideCookieLines
      */
-    public function testSetCookieLine(array $cookieParams, array $cookieLineChunks)
+    public function testSetCookieLine(array $cookieParams, array $cookieLineChunks): void
     {
         $next = function (ServerRequestInterface $request) {
             $request->getAttribute(SessionMiddleware::ATTRIBUTE_NAME)->begin();
@@ -183,13 +186,13 @@ final class SessionMiddlewareTest extends TestCase
         /** @var ResponseInterface $response */
         $response = $this->await($middleware(new ServerRequest('GET', 'https://www.example.com'), $next));
 
-        $cookieChunks = explode('; ', $response->getHeaderLine('Set-Cookie'));
-        array_shift($cookieChunks);
+        $cookieChunks = \explode('; ', $response->getHeaderLine('Set-Cookie'));
+        \array_shift($cookieChunks);
 
         self::assertSame($cookieLineChunks, $cookieChunks);
     }
 
-    public function testSessionDoesntExistsAndNotStartingOne()
+    public function testSessionDoesntExistsAndNotStartingOne(): void
     {
         $cookieName = 'CookieMonster';
         $middleware = new SessionMiddleware($cookieName, $this->cache);
@@ -210,7 +213,7 @@ final class SessionMiddlewareTest extends TestCase
         self::assertSame(false, $session->isActive());
     }
 
-    public function testSessionDoesntExistsAndStartingOne()
+    public function testSessionDoesntExistsAndStartingOne(): void
     {
         $cookieName = 'CookieMonster';
         $middleware = new SessionMiddleware($cookieName, $this->cache);
@@ -241,7 +244,7 @@ final class SessionMiddlewareTest extends TestCase
         ], $this->cache->getData());
     }
 
-    public function testSessionExistsAndKeepingItAlive()
+    public function testSessionExistsAndKeepingItAlive(): void
     {
         $contents = ['Sand'];
         $cookieName = 'CookieMonster';
@@ -274,7 +277,7 @@ final class SessionMiddlewareTest extends TestCase
         self::assertSame($cookieName . '=cookies', $response->getHeaderLine('Set-Cookie'));
     }
 
-    public function testSessionExistsAndEndingIt()
+    public function testSessionExistsAndEndingIt(): void
     {
         $cookieName = 'CookieMonster';
         $cache = new ArrayCache();

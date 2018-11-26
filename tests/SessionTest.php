@@ -6,15 +6,18 @@ use PHPUnit\Framework\TestCase;
 use WyriHaximus\React\Http\Middleware\Session;
 use WyriHaximus\React\Http\Middleware\SessionId\RandomBytes;
 
+/**
+ * @internal
+ */
 final class SessionTest extends TestCase
 {
-    public function testId()
+    public function testId(): void
     {
         $session = new Session('id', [], new RandomBytes());
         self::assertSame('id', $session->getId());
     }
 
-    public function testData()
+    public function testData(): void
     {
         $dataFirst = [
             'a' => 'b',
@@ -30,7 +33,7 @@ final class SessionTest extends TestCase
         self::assertSame($dataSecond, $session->getContents());
     }
 
-    public function testState()
+    public function testState(): void
     {
         $session = new Session('', [], new RandomBytes());
         self::assertFalse($session->isActive());
@@ -41,20 +44,20 @@ final class SessionTest extends TestCase
         $session->begin();
         $id = $session->getId();
         self::assertTrue($session->isActive());
-        self::assertTrue(strlen($id) >= 1);
+        self::assertTrue(\strlen($id) >= 1);
         self::assertSame([], $session->getOldIds());
         self::assertSame([], $session->getContents());
 
         $session->setContents(['foo' => 'bar']);
         self::assertTrue($session->isActive());
-        self::assertTrue(strlen($session->getId()) >= 1);
+        self::assertTrue(\strlen($session->getId()) >= 1);
         self::assertSame($id, $session->getId());
         self::assertSame([], $session->getOldIds());
         self::assertSame(['foo' => 'bar'], $session->getContents());
 
         $session->regenerate();
         self::assertTrue($session->isActive());
-        self::assertTrue(strlen($session->getId()) >= 1);
+        self::assertTrue(\strlen($session->getId()) >= 1);
         self::assertNotSame($id, $session->getId());
         self::assertSame([
             $id,
@@ -65,7 +68,7 @@ final class SessionTest extends TestCase
         $id = $session->getId();
         $session->end();
         self::assertFalse($session->isActive());
-        self::assertTrue(strlen($session->getId()) == 0);
+        self::assertTrue(\strlen($session->getId()) == 0);
         self::assertNotSame($id, $session->getId());
         self::assertSame('', $session->getId());
         self::assertSame([
@@ -75,7 +78,7 @@ final class SessionTest extends TestCase
         self::assertSame([], $session->getContents());
     }
 
-    public function testToFromArray()
+    public function testToFromArray(): void
     {
         $session = new Session('', [], new RandomBytes());
 
@@ -107,7 +110,7 @@ final class SessionTest extends TestCase
         self::assertSame($array, $newSession->toArray());
     }
 
-    public function testToFromArrayNoClone()
+    public function testToFromArrayNoClone(): void
     {
         $session = new Session('', [], new RandomBytes());
 

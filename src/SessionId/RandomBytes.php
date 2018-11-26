@@ -23,6 +23,6 @@ final class RandomBytes implements SessionIdInterface
 
     public function generate(): string
     {
-        return bin2hex(random_bytes($this->length));
+        return \bin2hex(\random_bytes($this->length));
     }
 }
