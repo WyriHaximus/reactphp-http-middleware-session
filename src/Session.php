@@ -41,7 +41,7 @@ final class Session
         $this->sessionId = $sessionId;
 
         if ($this->id !== '') {
-            $this->status = PHP_SESSION_ACTIVE;
+            $this->status = \PHP_SESSION_ACTIVE;
         }
     }
 
