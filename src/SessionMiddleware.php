@@ -8,9 +8,9 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use React\Cache\CacheInterface;
 use React\Promise\PromiseInterface;
+use function React\Promise\resolve;
 use Throwable;
 use WyriHaximus\React\Http\Middleware\SessionId\RandomBytes;
-use function React\Promise\resolve;
 
 final class SessionMiddleware
 {
