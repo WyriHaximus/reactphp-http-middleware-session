@@ -7,10 +7,10 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use React\Cache\ArrayCache;
 use React\Cache\CacheInterface;
+use function React\Promise\resolve;
 use RingCentral\Psr7\Response;
 use RingCentral\Psr7\ServerRequest;
 use WyriHaximus\React\Http\Middleware\SessionMiddleware;
-use function React\Promise\resolve;
 
 /**
  * @internal
