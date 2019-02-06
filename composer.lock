@@ -51,16 +51,16 @@
         },
         {
             "name": "hansott/psr7-cookies",
-            "version": "2.0.0",
+            "version": "2.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/hansott/psr7-cookies.git",
-                "reference": "53a1ee8ae13a495aff2891849b607519c887b6ca"
+                "reference": "fbaef44d2a848bf10ea2f08d0b53e5c986c98dea"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/hansott/psr7-cookies/zipball/53a1ee8ae13a495aff2891849b607519c887b6ca",
-                "reference": "53a1ee8ae13a495aff2891849b607519c887b6ca",
+                "url": "https://api.github.com/repos/hansott/psr7-cookies/zipball/fbaef44d2a848bf10ea2f08d0b53e5c986c98dea",
+                "reference": "fbaef44d2a848bf10ea2f08d0b53e5c986c98dea",
                 "shasum": ""
             },
             "require": {
@@ -106,7 +106,7 @@
                 "psr7-cookies",
                 "setcookie"
             ],
-            "time": "2018-03-11T21:42:03+00:00"
+            "time": "2019-02-05T21:42:40+00:00"
         },
         {
             "name": "psr/http-message",
