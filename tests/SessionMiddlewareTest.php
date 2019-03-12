@@ -60,121 +60,157 @@ final class SessionMiddlewareTest extends TestCase
     public function provideCookieLines()
     {
         yield [
-            [
-                10,
-            ],
-            [
-                'expires=' . \gmdate('D, d-M-Y H:i:s T', \time() + 10),
-            ],
+            function () {
+                return [
+                    [
+                        10,
+                    ],
+                    [
+                        'expires=' . \gmdate('D, d-M-Y H:i:s T', \time() + 10),
+                    ],
+                ];
+            },
         ];
 
         yield [
-            [
-                10,
-                '/example/',
-            ],
-            [
-                'expires=' . \gmdate('D, d-M-Y H:i:s T', \time() + 10),
-                'path=/example/',
-            ],
+            function () {
+                return [
+                    [
+                        10,
+                        '/example/',
+                    ],
+                    [
+                        'expires=' . \gmdate('D, d-M-Y H:i:s T', \time() + 10),
+                        'path=/example/',
+                    ],
+                ];
+            },
         ];
 
         yield [
-            [
-                10,
-                '/example/',
-                'www.example.com',
-            ],
-            [
-                'expires=' . \gmdate('D, d-M-Y H:i:s T', \time() + 10),
-                'path=/example/',
-                'domain=www.example.com',
-            ],
+            function () {
+                return [
+                    [
+                        10,
+                        '/example/',
+                        'www.example.com',
+                    ],
+                    [
+                        'expires=' . \gmdate('D, d-M-Y H:i:s T', \time() + 10),
+                        'path=/example/',
+                        'domain=www.example.com',
+                    ],
+                ];
+            },
         ];
 
         yield [
-            [
-                10,
-                '/example/',
-                'www.example.com',
-                true,
-            ],
-            [
-                'expires=' . \gmdate('D, d-M-Y H:i:s T', \time() + 10),
-                'path=/example/',
-                'domain=www.example.com',
-                'secure',
-            ],
+            function () {
+                return [
+                    [
+                        10,
+                        '/example/',
+                        'www.example.com',
+                        true,
+                    ],
+                    [
+                        'expires=' . \gmdate('D, d-M-Y H:i:s T', \time() + 10),
+                        'path=/example/',
+                        'domain=www.example.com',
+                        'secure',
+                    ],
+                ];
+            },
         ];
 
         yield [
-            [
-                10,
-                '/example/',
-                'www.example.com',
-                false,
-            ],
-            [
-                'expires=' . \gmdate('D, d-M-Y H:i:s T', \time() + 10),
-                'path=/example/',
-                'domain=www.example.com',
-            ],
+            function () {
+                return [
+                    [
+                        10,
+                        '/example/',
+                        'www.example.com',
+                        false,
+                    ],
+                    [
+                        'expires=' . \gmdate('D, d-M-Y H:i:s T', \time() + 10),
+                        'path=/example/',
+                        'domain=www.example.com',
+                    ],
+                ];
+            },
         ];
 
         yield [
-            [
-                10,
-                '/example/',
-                'www.example.com',
-                true,
-                true,
-            ],
-            [
-                'expires=' . \gmdate('D, d-M-Y H:i:s T', \time() + 10),
-                'path=/example/',
-                'domain=www.example.com',
-                'secure',
-                'httponly',
-            ],
+            function () {
+                return [
+                    [
+                        10,
+                        '/example/',
+                        'www.example.com',
+                        true,
+                        true,
+                    ],
+                    [
+                        'expires=' . \gmdate('D, d-M-Y H:i:s T', \time() + 10),
+                        'path=/example/',
+                        'domain=www.example.com',
+                        'secure',
+                        'httponly',
+                    ],
+                ];
+            },
         ];
 
         yield [
-            [
-                10,
-                '/example/',
-                'www.example.com',
-                false,
-                false,
-            ],
-            [
-                'expires=' . \gmdate('D, d-M-Y H:i:s T', \time() + 10),
-                'path=/example/',
-                'domain=www.example.com',
-            ],
+            function () {
+                return [
+                    [
+                        10,
+                        '/example/',
+                        'www.example.com',
+                        false,
+                        false,
+                    ],
+                    [
+                        'expires=' . \gmdate('D, d-M-Y H:i:s T', \time() + 10),
+                        'path=/example/',
+                        'domain=www.example.com',
+                    ],
+                ];
+            },
         ];
 
         yield [
-            [
-                10,
-                '/example/',
-                'www.example.com',
-                false,
-                true,
-            ],
-            [
-                'expires=' . \gmdate('D, d-M-Y H:i:s T', \time() + 10),
-                'path=/example/',
-                'domain=www.example.com',
-                'httponly',
-            ],
+            function () {
+                return [
+                    [
+                        10,
+                        '/example/',
+                        'www.example.com',
+                        false,
+                        true,
+                    ],
+                    [
+                        'expires=' . \gmdate('D, d-M-Y H:i:s T', \time() + 10),
+                        'path=/example/',
+                        'domain=www.example.com',
+                        'httponly',
+                    ],
+                ];
+            },
         ];
     }
 
     /**
      * @dataProvider provideCookieLines
      */
-    public function testSetCookieLine(array $cookieParams, array $cookieLineChunks): void
+    public function testSetCookieLine(callable $setup): void
     {
+        self::waitUntilTheNextSecond();
+
+        [$cookieParams, $cookieLineChunks] = $setup();
+
         $next = function (ServerRequestInterface $request) {
             $request->getAttribute(SessionMiddleware::ATTRIBUTE_NAME)->begin();
 
