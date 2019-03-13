@@ -3,10 +3,12 @@
 namespace WyriHaximus\React\Tests\Http\Middleware;
 
 use ApiClients\Tools\TestUtilities\TestCase;
+use Prophecy\Argument;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use React\Cache\ArrayCache;
 use React\Cache\CacheInterface;
+use function React\Promise\reject;
 use function React\Promise\resolve;
 use RingCentral\Psr7\Response;
 use RingCentral\Psr7\ServerRequest;
@@ -341,5 +343,170 @@ final class SessionMiddlewareTest extends TestCase
         self::assertCount(0, $this->cache->getData());
         self::assertSame(false, $session->isActive());
         self::assertSame($cookieName . '=deleted; expires=Thu, 01-Jan-1970 00:00:01 GMT', $response->getHeaderLine('Set-Cookie'));
+    }
+
+    public function testUpdateCacheDeletesOldIds(): void
+    {
+        $cache = $this->prophesize(CacheInterface::class);
+        $cache->get(Argument::any())->shouldNotBeCalled();
+        $cache->set(Argument::any(), Argument::any())->shouldBeCalled();
+        $cache->delete(Argument::any())->shouldBeCalled()->willReturn(resolve(true));
+
+        $cookieName = 'CookieMonster';
+        $middleware = new SessionMiddleware($cookieName, $cache->reveal());
+
+        $request = new ServerRequest(
+            'GET',
+            'https://www.example.com/'
+        );
+
+        $next = function (ServerRequestInterface $request) use (&$session) {
+            $request->getAttribute(SessionMiddleware::ATTRIBUTE_NAME)->begin();
+            $request->getAttribute(SessionMiddleware::ATTRIBUTE_NAME)->regenerate();
+            $request->getAttribute(SessionMiddleware::ATTRIBUTE_NAME)->regenerate();
+
+            return new Response();
+        };
+
+        $this->await($middleware($request, $next));
+    }
+
+    public function testASessionIdIsAlwaysCheckedForInTheCache(): void
+    {
+        $cache = $this->prophesize(CacheInterface::class);
+        $cache->get('cookies')->shouldBeCalled();
+        $cache->set(Argument::any(), Argument::any())->shouldBeCalled();
+
+        $cookieName = 'CookieMonster';
+        $middleware = new SessionMiddleware($cookieName, $cache->reveal());
+
+        $request = (new ServerRequest(
+            'GET',
+            'https://www.example.com/'
+        ))->withCookieParams([
+            $cookieName => 'cookies',
+        ]);
+
+        $next = function () {
+            return new Response();
+        };
+
+        $this->await($middleware($request, $next));
+    }
+
+    public function testAnErrorFromTheCacheShouldBubbleUp(): void
+    {
+        self::expectException(\Exception::class);
+        self::expectExceptionMessage('Error on the cache layer');
+
+        $cache = $this->prophesize(CacheInterface::class);
+        $cache->get('cookies')->shouldBeCalled()->willReturn(reject(new \Exception('Error on the cache layer')));
+
+        $cookieName = 'CookieMonster';
+        $middleware = new SessionMiddleware($cookieName, $cache->reveal());
+
+        $request = (new ServerRequest(
+            'GET',
+            'https://www.example.com/'
+        ))->withCookieParams([
+            $cookieName => 'cookies',
+        ]);
+
+        $next = function () {
+            return new Response();
+        };
+
+        $this->await($middleware($request, $next));
+    }
+
+    public function provideHeaderExpiresCombos()
+    {
+        yield [
+            function () {
+                return [
+                    0,
+                    '',
+                ];
+            },
+        ];
+
+        yield [
+            function () {
+                $t = 1;
+
+                return [
+                    $t,
+                    \sprintf(
+                        '; expires=%s',
+                        \gmdate('D, d-M-Y H:i:s T', \time() + $t)
+                    ),
+                ];
+            },
+        ];
+
+        yield [
+            function () {
+                $t = 60 * 5;
+
+                return [
+                    $t,
+                    \sprintf(
+                        '; expires=%s',
+                        \gmdate('D, d-M-Y H:i:s T', \time() + $t)
+                    ),
+                ];
+            },
+        ];
+
+        yield [
+            function () {
+                $t = 60 * 60 * 24 * 31;
+
+                return [
+                    $t,
+                    \sprintf(
+                        '; expires=%s',
+                        \gmdate('D, d-M-Y H:i:s T', \time() + $t)
+                    ),
+                ];
+            },
+        ];
+    }
+
+    /**
+     * @dataProvider provideHeaderExpiresCombos
+     */
+    public function testCookiesExpiresBasedOnConfiguration(callable $cookieMonster): void
+    {
+        self::waitUntilTheNextSecond();
+
+        [$expires, $cookieHeaderSuffix] = $cookieMonster();
+
+        $cookieName = 'CookieMonster';
+        $cookieValue = 'cookies';
+        $middleware = new SessionMiddleware($cookieName, $this->cache, [$expires]);
+
+        $request = (new ServerRequest(
+            'GET',
+            'https://www.example.com/'
+        ))->withCookieParams([
+            $cookieName => $cookieValue,
+        ]);
+
+        $next = function () {
+            return new Response();
+        };
+
+        /** @var ResponseInterface $response */
+        $response = $this->await($middleware($request, $next));
+
+        self::assertSame(
+            [
+                'Set-Cookie' => [
+                    $cookieName . '=' . $cookieValue . $cookieHeaderSuffix,
+                ],
+            ],
+            $response->getHeaders()
+        );
     }
 }

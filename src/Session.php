@@ -77,10 +77,10 @@ final class Session
         return $this->oldIds;
     }
 
-    public function begin()
+    public function begin(): void
     {
         if ($this->status === \PHP_SESSION_ACTIVE) {
-            return true;
+            return;
         }
 
         $this->status = \PHP_SESSION_ACTIVE;
@@ -90,10 +90,10 @@ final class Session
         }
     }
 
-    public function end()
+    public function end(): void
     {
         if ($this->status === \PHP_SESSION_NONE) {
-            return true;
+            return;
         }
 
         $this->oldIds[] = $this->id;
@@ -141,7 +141,7 @@ final class Session
      */
     public function fromArray(array $session, bool $clone = true): self
     {
-        if (!isset($session['id']) || !isset($session['contents']) || !isset($session['oldIds']) || !isset($session['oldIds'])) {
+        if (!isset($session['id']) || !isset($session['contents']) || !isset($session['oldIds']) || !isset($session['status'])) {
             throw new \InvalidArgumentException('Session array most contain "id", "contents", "oldIds", and "status".');
         }
 

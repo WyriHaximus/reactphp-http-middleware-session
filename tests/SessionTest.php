@@ -141,4 +141,73 @@ final class SessionTest extends TestCase
         self::assertSame($session, $newSession);
         self::assertSame($array, $newSession->toArray());
     }
+
+    public function provideSessionArrayWithMissingItems()
+    {
+        yield [
+            [
+                'contents' => \bin2hex(\random_bytes(3)),
+                'oldIds' => \bin2hex(\random_bytes(3)),
+                'status' => \bin2hex(\random_bytes(3)),
+            ],
+        ];
+
+        yield [
+            [
+                'id' => \bin2hex(\random_bytes(3)),
+                'oldIds' => \bin2hex(\random_bytes(3)),
+                'status' => \bin2hex(\random_bytes(3)),
+            ],
+        ];
+
+        yield [
+            [
+                'id' => \bin2hex(\random_bytes(3)),
+                'contents' => \bin2hex(\random_bytes(3)),
+                'status' => \bin2hex(\random_bytes(3)),
+            ],
+        ];
+
+        yield [
+            [
+                'id' => \bin2hex(\random_bytes(3)),
+                'contents' => \bin2hex(\random_bytes(3)),
+                'oldIds' => \bin2hex(\random_bytes(3)),
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider provideSessionArrayWithMissingItems
+     */
+    public function testFromArrayThrowsOnMissingElements(array $session): void
+    {
+        self::expectException(\InvalidArgumentException::class);
+        (new Session('', [], new RandomBytes()))->fromArray($session);
+    }
+
+    public function testRegenerateShouldOnlyRegenerateWhenSessionIsActive(): void
+    {
+        $session = new Session('', [], new RandomBytes());
+
+        self::assertSame('', $session->getId());
+        self::assertSame(false, $session->isActive());
+
+        self::assertFalse($session->regenerate());
+
+        self::assertSame('', $session->getId());
+        self::assertSame(false, $session->isActive());
+
+        $session->begin();
+
+        $sid = $session->getId();
+        self::assertGreaterThan(0, \strlen($sid));
+        self::assertSame(true, $session->isActive());
+
+        self::assertTrue($session->regenerate());
+
+        self::assertGreaterThan(0, \strlen($session->getId()));
+        self::assertNotSame($sid, $session->getId());
+        self::assertSame(true, $session->isActive());
+    }
 }

@@ -119,8 +119,6 @@ final class SessionMiddleware
             }
 
             return $result;
-        }, function () {
-            return resolve([]);
         });
     }
 
