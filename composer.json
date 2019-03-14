@@ -54,7 +54,7 @@
         ],
         "ensure-installed": "composer install --ansi -n -q",
         "infection": [
-            "infection --ansi --threads=4"
+            "infection --ansi --min-msi=100 --min-covered-msi=100 --threads=32"
         ],
         "lint-php": [
             "parallel-lint --exclude vendor ."
