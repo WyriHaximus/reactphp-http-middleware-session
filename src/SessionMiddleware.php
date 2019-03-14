@@ -54,7 +54,7 @@ final class SessionMiddleware
         string $cookieName,
         CacheInterface $cache,
         array $cookieParams = [],
-        SessionIdInterface $sessionId = null
+        ?SessionIdInterface $sessionId = null
     ) {
         $this->cookieName = $cookieName;
         $this->cache = $cache;
@@ -66,6 +66,11 @@ final class SessionMiddleware
         $this->sessionId = $sessionId;
     }
 
+    /**
+     * @param  ServerRequestInterface $request
+     * @param  callable               $next
+     * @return PromiseInterface
+     */
     public function __invoke(ServerRequestInterface $request, callable $next)
     {
         return $this->fetchSessionFromRequest($request)->then(function (Session $session) use ($next, $request) {

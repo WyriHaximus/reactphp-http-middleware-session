@@ -6,12 +6,10 @@ use WyriHaximus\React\Http\Middleware\SessionIdInterface;
 
 final class RandomBytes implements SessionIdInterface
 {
-    const DEFAULT_LENGTH = 32;
+    public const DEFAULT_LENGTH = 32;
 
-    /**
-     * @var int
-     */
-    private $length = self::DEFAULT_LENGTH;
+    /** @var int */
+    private $length;
 
     /**
      * @param int $length

@@ -1,0 +1,10 @@
+parameters:
+	ignoreErrors:
+		- '#Constructor in [a-zA-Z0-9\\_]+ has parameter \$[a-zA-Z0-9_]+ with default value.#'
+		- '#Method [a-zA-Z0-9\\_]+::[a-zA-Z0-9_]+\(\) has parameter \$[a-zA-Z0-9_]+ with a nullable type declaration.#'
+		- '#Method [a-zA-Z0-9\\_]+::[a-zA-Z0-9_]+\(\) has parameter \$[a-zA-Z0-9_]+ with null as default value.#'
+	classesAllowedToBeExtended:
+		- ApiClients\Tools\TestUtilities\TestCase
+
+includes:
+	- vendor/wyrihaximus/phpstan-rules-wrapper/wrapper.neon

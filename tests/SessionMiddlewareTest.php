@@ -19,47 +19,16 @@ use WyriHaximus\React\Http\Middleware\SessionMiddleware;
  */
 final class SessionMiddlewareTest extends TestCase
 {
-    /**
-     * @var CacheInterface
-     */
+    /** @var InspectableArrayCache */
     private $cache;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->cache = new class() implements CacheInterface {
-            protected $data = [];
-
-            /**
-             * @return array
-             */
-            public function getData(): array
-            {
-                return $this->data;
-            }
-
-            public function get($key, $default = null)
-            {
-                if (!isset($this->data[$key])) {
-                    return resolve($default);
-                }
-
-                return resolve($this->data[$key]);
-            }
-
-            public function set($key, $value, $ttl = null): void
-            {
-                $this->data[$key] = $value;
-            }
-
-            public function delete($key): void
-            {
-                unset($this->data[$key]);
-            }
-        };
+        $this->cache = new InspectableArrayCache();
     }
 
-    public function provideCookieLines()
+    public function provideCookieLines(): iterable
     {
         yield [
             function () {
@@ -248,7 +217,7 @@ final class SessionMiddlewareTest extends TestCase
         $middleware($request, $next);
 
         self::assertCount(0, $this->cache->getData());
-        self::assertSame(false, $session->isActive());
+        self::assertFalse($session->isActive());
     }
 
     public function testSessionDoesntExistsAndStartingOne(): void
@@ -274,7 +243,7 @@ final class SessionMiddlewareTest extends TestCase
         $middleware($request, $next);
 
         self::assertCount(1, $this->cache->getData());
-        self::assertSame(true, $session->isActive());
+        self::assertTrue($session->isActive());
         self::assertSame([
             $session->getId() => [
                 'foo' => 'bar',
@@ -310,7 +279,7 @@ final class SessionMiddlewareTest extends TestCase
         $sandCoookies = $this->await($this->cache->get('cookies'));
 
         self::assertCount(1, $this->cache->getData());
-        self::assertSame(true, $session->isActive());
+        self::assertTrue($session->isActive());
         self::assertSame($contents, $sandCoookies);
         self::assertSame($cookieName . '=cookies', $response->getHeaderLine('Set-Cookie'));
     }
@@ -341,7 +310,7 @@ final class SessionMiddlewareTest extends TestCase
         $response = $this->await($middleware($request, $next));
 
         self::assertCount(0, $this->cache->getData());
-        self::assertSame(false, $session->isActive());
+        self::assertFalse($session->isActive());
         self::assertSame($cookieName . '=deleted; expires=Thu, 01-Jan-1970 00:00:01 GMT', $response->getHeaderLine('Set-Cookie'));
     }
 
@@ -360,7 +329,7 @@ final class SessionMiddlewareTest extends TestCase
             'https://www.example.com/'
         );
 
-        $next = function (ServerRequestInterface $request) use (&$session) {
+        $next = function (ServerRequestInterface $request) {
             $request->getAttribute(SessionMiddleware::ATTRIBUTE_NAME)->begin();
             $request->getAttribute(SessionMiddleware::ATTRIBUTE_NAME)->regenerate();
             $request->getAttribute(SessionMiddleware::ATTRIBUTE_NAME)->regenerate();
@@ -419,7 +388,7 @@ final class SessionMiddlewareTest extends TestCase
         $this->await($middleware($request, $next));
     }
 
-    public function provideHeaderExpiresCombos()
+    public function provideHeaderExpiresCombos(): iterable
     {
         yield [
             function () {

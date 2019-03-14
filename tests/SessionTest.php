@@ -104,10 +104,9 @@ final class SessionTest extends TestCase
             $session->toArray()
         );
 
-        $array = $session->toArray();
-        $newSession = $session->fromArray($array);
+        $newSession = $session->fromArray($session->toArray());
         self::assertNotSame($session, $newSession);
-        self::assertSame($array, $newSession->toArray());
+        self::assertSame($session->toArray(), $newSession->toArray());
     }
 
     public function testToFromArrayNoClone(): void
@@ -136,13 +135,12 @@ final class SessionTest extends TestCase
             $session->toArray()
         );
 
-        $array = $session->toArray();
-        $newSession = $session->fromArray($array, false);
+        $newSession = $session->fromArray($session->toArray(), false);
         self::assertSame($session, $newSession);
-        self::assertSame($array, $newSession->toArray());
+        self::assertSame($session->toArray(), $newSession->toArray());
     }
 
-    public function provideSessionArrayWithMissingItems()
+    public function provideSessionArrayWithMissingItems(): iterable
     {
         yield [
             [
@@ -191,23 +189,23 @@ final class SessionTest extends TestCase
         $session = new Session('', [], new RandomBytes());
 
         self::assertSame('', $session->getId());
-        self::assertSame(false, $session->isActive());
+        self::assertFalse($session->isActive());
 
         self::assertFalse($session->regenerate());
 
         self::assertSame('', $session->getId());
-        self::assertSame(false, $session->isActive());
+        self::assertFalse($session->isActive());
 
         $session->begin();
 
         $sid = $session->getId();
         self::assertGreaterThan(0, \strlen($sid));
-        self::assertSame(true, $session->isActive());
+        self::assertTrue($session->isActive());
 
         self::assertTrue($session->regenerate());
 
         self::assertGreaterThan(0, \strlen($session->getId()));
         self::assertNotSame($sid, $session->getId());
-        self::assertSame(true, $session->isActive());
+        self::assertTrue($session->isActive());
     }
 }

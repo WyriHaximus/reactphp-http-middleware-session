@@ -25,8 +25,14 @@ cs:
 cs-fix:
 	composer cs-fix
 
+infection:
+	composer infection
+
 unit:
 	composer run-script unit --timeout=0
+
+stan:
+	composer run-script stan --timeout=0
 
 unit-coverage:
 	composer run-script unit-coverage --timeout=0
