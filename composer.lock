@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "aa5f6ea70bcfcd467dd56d76cdc33386",
+    "content-hash": "656c8daff593cff2ff8a393e79dce6bd",
     "packages": [
         {
             "name": "composer/xdebug-handler",
@@ -95,16 +95,16 @@
         },
         {
             "name": "hansott/psr7-cookies",
-            "version": "2.0.2",
+            "version": "3.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/hansott/psr7-cookies.git",
-                "reference": "2c43fc7720b475289a150ec3be8b81d283da768b"
+                "reference": "e128fc01a1b3a4247f6948ee9296b24af9149558"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/hansott/psr7-cookies/zipball/2c43fc7720b475289a150ec3be8b81d283da768b",
-                "reference": "2c43fc7720b475289a150ec3be8b81d283da768b",
+                "url": "https://api.github.com/repos/hansott/psr7-cookies/zipball/e128fc01a1b3a4247f6948ee9296b24af9149558",
+                "reference": "e128fc01a1b3a4247f6948ee9296b24af9149558",
                 "shasum": ""
             },
             "require": {
@@ -135,8 +135,7 @@
             "authors": [
                 {
                     "name": "Hans Ott",
-                    "email": "hansott@hotmail.be",
-                    "homepage": "https://hansott.github.io",
+                    "email": "hans@iott.consulting",
                     "role": "Developer"
                 }
             ],
@@ -150,7 +149,7 @@
                 "psr7-cookies",
                 "setcookie"
             ],
-            "time": "2019-03-23T15:17:46+00:00"
+            "time": "2019-04-20T10:07:10+00:00"
         },
         {
             "name": "jangregor/phpstan-prophecy",
@@ -369,7 +368,7 @@
                     "homepage": "https://nette.org/contributors"
                 }
             ],
-            "description": "🅱 Nette Bootstrap: the simple way to configure and bootstrap your Nette application.",
+            "description": "? Nette Bootstrap: the simple way to configure and bootstrap your Nette application.",
             "homepage": "https://nette.org",
             "keywords": [
                 "bootstrapping",
@@ -434,7 +433,7 @@
                     "homepage": "https://nette.org/contributors"
                 }
             ],
-            "description": "💎 Nette Dependency Injection Container: Flexible, compiled and full-featured DIC with perfectly usable autowiring and support for all new PHP 7.1 features.",
+            "description": "? Nette Dependency Injection Container: Flexible, compiled and full-featured DIC with perfectly usable autowiring and support for all new PHP 7.1 features.",
             "homepage": "https://nette.org",
             "keywords": [
                 "compiled",
@@ -499,7 +498,7 @@
                     "homepage": "https://nette.org/contributors"
                 }
             ],
-            "description": "🔍 Nette Finder: find files and directories with an intuitive API.",
+            "description": "? Nette Finder: find files and directories with an intuitive API.",
             "homepage": "https://nette.org",
             "keywords": [
                 "filesystem",
@@ -559,7 +558,7 @@
                     "homepage": "https://nette.org/contributors"
                 }
             ],
-            "description": "🍸 Nette NEON: encodes and decodes NEON file format.",
+            "description": "? Nette NEON: encodes and decodes NEON file format.",
             "homepage": "http://ne-on.org",
             "keywords": [
                 "export",
@@ -622,7 +621,7 @@
                     "homepage": "https://nette.org/contributors"
                 }
             ],
-            "description": "🐘 Nette PHP Generator: generates neat PHP code for you. Supports new PHP 7.3 features.",
+            "description": "? Nette PHP Generator: generates neat PHP code for you. Supports new PHP 7.3 features.",
             "homepage": "https://nette.org",
             "keywords": [
                 "code",
@@ -686,7 +685,7 @@
                     "homepage": "https://nette.org/contributors"
                 }
             ],
-            "description": "🍀 Nette RobotLoader: high performance and comfortable autoloader that will search and autoload classes within your application.",
+            "description": "? Nette RobotLoader: high performance and comfortable autoloader that will search and autoload classes within your application.",
             "homepage": "https://nette.org",
             "keywords": [
                 "autoload",
@@ -759,7 +758,7 @@
                     "homepage": "https://nette.org/contributors"
                 }
             ],
-            "description": "🛠 Nette Utils: lightweight utilities for string & array manipulation, image handling, safe JSON encoding/decoding, validation, slug or strong password generating etc.",
+            "description": "? Nette Utils: lightweight utilities for string & array manipulation, image handling, safe JSON encoding/decoding, validation, slug or strong password generating etc.",
             "homepage": "https://nette.org",
             "keywords": [
                 "array",
@@ -2295,12 +2294,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/WyriHaximus/php-phpstan-rules-wrapper.git",
-                "reference": "d582a3204b9842514a80cd4a8c55e4a69aae19f5"
+                "reference": "1040fec075a73c419ed31fb1a33821d45f0dda78"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/WyriHaximus/php-phpstan-rules-wrapper/zipball/d582a3204b9842514a80cd4a8c55e4a69aae19f5",
-                "reference": "d582a3204b9842514a80cd4a8c55e4a69aae19f5",
+                "url": "https://api.github.com/repos/WyriHaximus/php-phpstan-rules-wrapper/zipball/1040fec075a73c419ed31fb1a33821d45f0dda78",
+                "reference": "1040fec075a73c419ed31fb1a33821d45f0dda78",
                 "shasum": ""
             },
             "require": {
@@ -2326,7 +2325,7 @@
                 }
             ],
             "description": "🌯 PHPStan rules wrapper",
-            "time": "2019-03-16T14:53:23+00:00"
+            "time": "2019-04-17T00:15:21+00:00"
         }
     ],
     "packages-dev": [
@@ -5508,7 +5507,7 @@
                 },
                 {
                     "name": "Gert de Pagter",
-                    "email": "BackEndTea@gmail.com"
+                    "email": "backendtea@gmail.com"
                 }
             ],
             "description": "Symfony polyfill for ctype functions",
