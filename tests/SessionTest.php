@@ -2,14 +2,14 @@
 
 namespace WyriHaximus\React\Tests\Http\Middleware;
 
-use PHPUnit\Framework\TestCase;
+use WyriHaximus\AsyncTestUtilities\AsyncTestCase;
 use WyriHaximus\React\Http\Middleware\Session;
 use WyriHaximus\React\Http\Middleware\SessionId\RandomBytes;
 
 /**
  * @internal
  */
-final class SessionTest extends TestCase
+final class SessionTest extends AsyncTestCase
 {
     public function testId(): void
     {

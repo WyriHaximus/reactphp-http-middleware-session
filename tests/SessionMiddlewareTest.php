@@ -2,7 +2,6 @@
 
 namespace WyriHaximus\React\Tests\Http\Middleware;
 
-use ApiClients\Tools\TestUtilities\TestCase;
 use Prophecy\Argument;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -12,12 +11,13 @@ use function React\Promise\reject;
 use function React\Promise\resolve;
 use RingCentral\Psr7\Response;
 use RingCentral\Psr7\ServerRequest;
+use WyriHaximus\AsyncTestUtilities\AsyncTestCase;
 use WyriHaximus\React\Http\Middleware\SessionMiddleware;
 
 /**
  * @internal
  */
-final class SessionMiddlewareTest extends TestCase
+final class SessionMiddlewareTest extends AsyncTestCase
 {
     /** @var InspectableArrayCache */
     private $cache;

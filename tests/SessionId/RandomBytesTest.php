@@ -2,13 +2,13 @@
 
 namespace WyriHaximus\React\Tests\Http\Middleware\SessionId;
 
-use ApiClients\Tools\TestUtilities\TestCase;
+use WyriHaximus\AsyncTestUtilities\AsyncTestCase;
 use WyriHaximus\React\Http\Middleware\SessionId\RandomBytes;
 
 /**
  * @internal
  */
-final class RandomBytesTest extends TestCase
+final class RandomBytesTest extends AsyncTestCase
 {
     public function provideSizes(): iterable
     {
