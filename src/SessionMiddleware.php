@@ -37,7 +37,7 @@ final class SessionMiddleware
     /**
      * @var array
      */
-    private $cookieParams;
+    private $cookieParams = [];
 
     /**
      * @var SessionIdInterface
@@ -58,7 +58,7 @@ final class SessionMiddleware
     ) {
         $this->cookieName = $cookieName;
         $this->cache = $cache;
-        $this->cookieParams = \array_replace(self::DEFAULT_COOKIE_PARAMS, $cookieParams);
+        $this->cookieParams = \array_replace(self::DEFAULT_COOKIE_PARAMS, $cookieParams) ?? [];
 
         if ($sessionId === null) {
             $sessionId = new RandomBytes();

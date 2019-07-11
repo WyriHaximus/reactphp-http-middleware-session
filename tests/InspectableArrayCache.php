@@ -3,6 +3,7 @@
 namespace WyriHaximus\React\Tests\Http\Middleware;
 
 use React\Cache\CacheInterface;
+use function React\Promise\all;
 use React\Promise\PromiseInterface;
 use function React\Promise\resolve;
 
@@ -55,5 +56,73 @@ final class InspectableArrayCache implements CacheInterface
         unset($this->data[$key]);
 
         return resolve(true);
+    }
+
+    /**
+     * @param  array            $keys
+     * @param  mixed|null       $default
+     * @return PromiseInterface
+     */
+    public function getMultiple(array $keys, $default = null)
+    {
+        $items = [];
+        foreach ($keys as $key) {
+            if (isset($this->data[$key])) {
+                $items[$key] = $this->data[$key];
+
+                continue;
+            }
+
+            $items[$key] = $default;
+        }
+
+        return resolve($items);
+    }
+
+    /**
+     * @param  array            $values
+     * @param  float|null       $ttl
+     * @return PromiseInterface
+     */
+    public function setMultiple(array $values, $ttl = null)
+    {
+        foreach ($values as $key => $value) {
+            $this->data[$key] = $value;
+        }
+
+        return resolve(true);
+    }
+
+    /**
+     * @param  array            $keys
+     * @return PromiseInterface
+     */
+    public function deleteMultiple(array $keys)
+    {
+        $items = [];
+        foreach ($keys as $key) {
+            $items[$key] = $this->delete($key);
+        }
+
+        return all($items);
+    }
+
+    /**
+     * @return PromiseInterface
+     */
+    public function clear()
+    {
+        $this->data = [];
+
+        return resolve(true);
+    }
+
+    /**
+     * @param  string           $key
+     * @return PromiseInterface
+     */
+    public function has($key)
+    {
+        return resolve(isset($this->data[$key]));
     }
 }
