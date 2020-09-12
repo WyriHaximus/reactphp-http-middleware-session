@@ -47,7 +47,7 @@ final class SessionMiddleware
     /**
      * @param string                  $cookieName
      * @param CacheInterface          $cache
-     * @param array                   $cookieParams
+     * @param array<int, mixed>       $cookieParams
      * @param SessionIdInterface|null $sessionId
      */
     public function __construct(
@@ -107,6 +107,7 @@ final class SessionMiddleware
             });
         } catch (Throwable $et) {
             // Do nothing, only a not found will be thrown so generating our own id now
+            // @ignoreException
         }
 
         return resolve(new Session($id, [], $this->sessionId));
