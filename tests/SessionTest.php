@@ -1,10 +1,17 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace WyriHaximus\React\Tests\Http\Middleware;
 
+use InvalidArgumentException;
 use WyriHaximus\AsyncTestUtilities\AsyncTestCase;
 use WyriHaximus\React\Http\Middleware\Session;
 use WyriHaximus\React\Http\Middleware\SessionId\RandomBytes;
+
+use function bin2hex;
+use function random_bytes;
+use function strlen;
 
 /**
  * @internal
@@ -19,13 +26,9 @@ final class SessionTest extends AsyncTestCase
 
     public function testData(): void
     {
-        $dataFirst = [
-            'a' => 'b',
-        ];
+        $dataFirst = ['a' => 'b'];
 
-        $dataSecond = [
-            'b' => 'a',
-        ];
+        $dataSecond = ['b' => 'a'];
 
         $session = new Session('id', $dataFirst, new RandomBytes());
         self::assertSame($dataFirst, $session->getContents());
@@ -44,31 +47,29 @@ final class SessionTest extends AsyncTestCase
         $session->begin();
         $id = $session->getId();
         self::assertTrue($session->isActive());
-        self::assertTrue(\strlen($id) >= 1);
+        self::assertGreaterThanOrEqual(1, strlen($id));
         self::assertSame([], $session->getOldIds());
         self::assertSame([], $session->getContents());
 
         $session->setContents(['foo' => 'bar']);
         self::assertTrue($session->isActive());
-        self::assertTrue(\strlen($session->getId()) >= 1);
+        self::assertGreaterThanOrEqual(1, strlen($session->getId()));
         self::assertSame($id, $session->getId());
         self::assertSame([], $session->getOldIds());
         self::assertSame(['foo' => 'bar'], $session->getContents());
 
         $session->regenerate();
         self::assertTrue($session->isActive());
-        self::assertTrue(\strlen($session->getId()) >= 1);
+        self::assertGreaterThanOrEqual(1, strlen($session->getId()));
         self::assertNotSame($id, $session->getId());
-        self::assertSame([
-            $id,
-        ], $session->getOldIds());
+        self::assertSame([$id], $session->getOldIds());
         self::assertSame(['foo' => 'bar'], $session->getContents());
 
         $firstId = $id;
-        $id = $session->getId();
+        $id      = $session->getId();
         $session->end();
         self::assertFalse($session->isActive());
-        self::assertTrue(\strlen($session->getId()) == 0);
+        self::assertSame(0, strlen($session->getId()));
         self::assertNotSame($id, $session->getId());
         self::assertSame('', $session->getId());
         self::assertSame([
@@ -140,49 +141,52 @@ final class SessionTest extends AsyncTestCase
         self::assertSame($session->toArray(), $newSession->toArray());
     }
 
+    /**
+     * @return iterable<int, array<int, array<string, string>>>
+     */
     public function provideSessionArrayWithMissingItems(): iterable
     {
         yield [
             [
-                'contents' => \bin2hex(\random_bytes(3)),
-                'oldIds' => \bin2hex(\random_bytes(3)),
-                'status' => \bin2hex(\random_bytes(3)),
+                'contents' => bin2hex(random_bytes(3)),
+                'oldIds' => bin2hex(random_bytes(3)),
+                'status' => bin2hex(random_bytes(3)),
             ],
         ];
 
         yield [
             [
-                'id' => \bin2hex(\random_bytes(3)),
-                'oldIds' => \bin2hex(\random_bytes(3)),
-                'status' => \bin2hex(\random_bytes(3)),
+                'id' => bin2hex(random_bytes(3)),
+                'oldIds' => bin2hex(random_bytes(3)),
+                'status' => bin2hex(random_bytes(3)),
             ],
         ];
 
         yield [
             [
-                'id' => \bin2hex(\random_bytes(3)),
-                'contents' => \bin2hex(\random_bytes(3)),
-                'status' => \bin2hex(\random_bytes(3)),
+                'id' => bin2hex(random_bytes(3)),
+                'contents' => bin2hex(random_bytes(3)),
+                'status' => bin2hex(random_bytes(3)),
             ],
         ];
 
         yield [
             [
-                'id' => \bin2hex(\random_bytes(3)),
-                'contents' => \bin2hex(\random_bytes(3)),
-                'oldIds' => \bin2hex(\random_bytes(3)),
+                'id' => bin2hex(random_bytes(3)),
+                'contents' => bin2hex(random_bytes(3)),
+                'oldIds' => bin2hex(random_bytes(3)),
             ],
         ];
     }
 
     /**
-     * @dataProvider provideSessionArrayWithMissingItems
-     *
      * @param array<string, string> $session
+     *
+     * @dataProvider provideSessionArrayWithMissingItems
      */
     public function testFromArrayThrowsOnMissingElements(array $session): void
     {
-        self::expectException(\InvalidArgumentException::class);
+        self::expectException(InvalidArgumentException::class);
         (new Session('', [], new RandomBytes()))->fromArray($session);
     }
 
@@ -201,12 +205,12 @@ final class SessionTest extends AsyncTestCase
         $session->begin();
 
         $sid = $session->getId();
-        self::assertGreaterThan(0, \strlen($sid));
+        self::assertGreaterThan(0, strlen($sid));
         self::assertTrue($session->isActive());
 
         self::assertTrue($session->regenerate());
 
-        self::assertGreaterThan(0, \strlen($session->getId()));
+        self::assertGreaterThan(0, strlen($session->getId()));
         self::assertNotSame($sid, $session->getId());
         self::assertTrue($session->isActive());
     }
