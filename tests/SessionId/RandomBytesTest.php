@@ -28,7 +28,7 @@ final class RandomBytesTest extends AsyncTestCase
         for ($i = 0; $i < 15; $i++) {
             $id = $randomBytes->generate();
             /** @var string $id */
-            $id = \hex2bin($id);
+            $id = \Safe\hex2bin($id);
             self::assertSame($size, \strlen($id));
         }
     }

@@ -177,6 +177,8 @@ final class SessionTest extends AsyncTestCase
 
     /**
      * @dataProvider provideSessionArrayWithMissingItems
+     *
+     * @param array<string, string> $session
      */
     public function testFromArrayThrowsOnMissingElements(array $session): void
     {

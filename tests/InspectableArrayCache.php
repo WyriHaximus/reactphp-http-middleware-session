@@ -9,11 +9,11 @@ use function React\Promise\resolve;
 
 final class InspectableArrayCache implements CacheInterface
 {
-    /** @var array */
+    /** @var array<string, mixed|null> */
     private $data = [];
 
     /**
-     * @return array
+     * @return array<string, mixed|null>
      */
     public function getData(): array
     {
@@ -27,7 +27,7 @@ final class InspectableArrayCache implements CacheInterface
      */
     public function get($key, $default = null): PromiseInterface
     {
-        if (!isset($this->data[$key])) {
+        if (!\array_key_exists($key, $this->data)) {
             return resolve($default);
         }
 
@@ -67,7 +67,7 @@ final class InspectableArrayCache implements CacheInterface
     {
         $items = [];
         foreach ($keys as $key) {
-            if (isset($this->data[$key])) {
+            if (!\array_key_exists($key, $this->data)) {
                 $items[$key] = $this->data[$key];
 
                 continue;
@@ -123,6 +123,6 @@ final class InspectableArrayCache implements CacheInterface
      */
     public function has($key)
     {
-        return resolve(isset($this->data[$key]));
+        return resolve(\array_key_exists($key, $this->data));
     }
 }

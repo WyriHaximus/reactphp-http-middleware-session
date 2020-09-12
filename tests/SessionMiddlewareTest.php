@@ -405,7 +405,7 @@ final class SessionMiddlewareTest extends AsyncTestCase
 
                 return [
                     $t,
-                    \sprintf(
+                    \Safe\sprintf(
                         '; expires=%s',
                         \gmdate('D, d-M-Y H:i:s T', \time() + $t)
                     ),
@@ -419,7 +419,7 @@ final class SessionMiddlewareTest extends AsyncTestCase
 
                 return [
                     $t,
-                    \sprintf(
+                    \Safe\sprintf(
                         '; expires=%s',
                         \gmdate('D, d-M-Y H:i:s T', \time() + $t)
                     ),
@@ -433,7 +433,7 @@ final class SessionMiddlewareTest extends AsyncTestCase
 
                 return [
                     $t,
-                    \sprintf(
+                    \Safe\sprintf(
                         '; expires=%s',
                         \gmdate('D, d-M-Y H:i:s T', \time() + $t)
                     ),

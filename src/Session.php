@@ -10,7 +10,7 @@ final class Session
     private $id;
 
     /**
-     * @var array
+     * @var array<string, mixed>
      */
     private $contents;
 
@@ -30,9 +30,9 @@ final class Session
     private $status = \PHP_SESSION_NONE;
 
     /**
-     * @param string             $id
-     * @param array              $contents
-     * @param SessionIdInterface $sessionId
+     * @param string               $id
+     * @param array<string, mixed> $contents
+     * @param SessionIdInterface   $sessionId
      */
     public function __construct(string $id, array $contents, SessionIdInterface $sessionId)
     {
@@ -54,7 +54,7 @@ final class Session
     }
 
     /**
-     * @param array $contents
+     * @param array<string, mixed> $contents
      */
     public function setContents(array $contents): void
     {
@@ -62,7 +62,7 @@ final class Session
     }
 
     /**
-     * @return array
+     * @return array<string, mixed>
      */
     public function getContents(): array
     {
@@ -123,6 +123,9 @@ final class Session
         return true;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toArray(): array
     {
         return [
@@ -134,14 +137,14 @@ final class Session
     }
 
     /**
-     * @param  array                     $session
+     * @param  array<string, mixed>      $session
      * @param  bool                      $clone
      * @throws \InvalidArgumentException
      * @return Session
      */
     public function fromArray(array $session, bool $clone = true): self
     {
-        if (!isset($session['id']) || !isset($session['contents']) || !isset($session['oldIds']) || !isset($session['status'])) {
+        if (!\array_key_exists('id', $session) || !\array_key_exists('contents', $session) || !\array_key_exists('oldIds', $session) || !\array_key_exists('status', $session)) {
             throw new \InvalidArgumentException('Session array most contain "id", "contents", "oldIds", and "status".');
         }
 
