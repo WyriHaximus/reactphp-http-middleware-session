@@ -3,10 +3,10 @@ parameters:
 		- '#Constructor in [a-zA-Z0-9\\_]+ has parameter \$[a-zA-Z0-9_]+ with default value.#'
 		- '#Method [a-zA-Z0-9\\_]+::[a-zA-Z0-9_]+\(\) has parameter \$[a-zA-Z0-9_]+ with a nullable type declaration.#'
 		- '#Method [a-zA-Z0-9\\_]+::[a-zA-Z0-9_]+\(\) has parameter \$[a-zA-Z0-9_]+ with null as default value.#'
-		- '#Array \(array<string, mixed>\) does not accept key int|string.#'
 		- '#In method \"WyriHaximus\\React\\Http\\Middleware\\SessionMiddleware::fetchSessionFromRequest\", caught \"Throwable\" must be rethrown.#'
-	classesAllowedToBeExtended:
-		- ApiClients\Tools\TestUtilities\TestCase
+	ergebnis:
+		classesAllowedToBeExtended:
+			- ApiClients\Tools\TestUtilities\TestCase
 
 includes:
 	- vendor/wyrihaximus/async-test-utilities/rules.neon

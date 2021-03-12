@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace WyriHaximus\React\Http\Middleware;
 
@@ -8,15 +10,18 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use React\Cache\CacheInterface;
 use React\Promise\PromiseInterface;
-use function React\Promise\resolve;
 use Throwable;
 use WyriHaximus\React\Http\Middleware\SessionId\RandomBytes;
 
+use function React\Promise\resolve;
+use function Safe\array_replace;
+use function time;
+
 final class SessionMiddleware
 {
-    const ATTRIBUTE_NAME = 'wyrihaximus.react.http.middleware.session';
+    public const ATTRIBUTE_NAME = 'wyrihaximus.react.http.middleware.session';
 
-    const DEFAULT_COOKIE_PARAMS = [
+    public const DEFAULT_COOKIE_PARAMS = [
         0,
         '',
         '',
@@ -24,31 +29,17 @@ final class SessionMiddleware
         false,
     ];
 
-    /**
-     * @var string
-     */
-    private $cookieName;
+    private string $cookieName;
+
+    private CacheInterface $cache;
+
+    /** @var array<int, mixed> */
+    private array $cookieParams = [];
+
+    private SessionIdInterface $sessionId;
 
     /**
-     * @var CacheInterface
-     */
-    private $cache;
-
-    /**
-     * @var array
-     */
-    private $cookieParams = [];
-
-    /**
-     * @var SessionIdInterface
-     */
-    private $sessionId;
-
-    /**
-     * @param string                  $cookieName
-     * @param CacheInterface          $cache
-     * @param array<int, mixed>       $cookieParams
-     * @param SessionIdInterface|null $sessionId
+     * @param array<int, mixed> $cookieParams
      */
     public function __construct(
         string $cookieName,
@@ -56,34 +47,28 @@ final class SessionMiddleware
         array $cookieParams = [],
         ?SessionIdInterface $sessionId = null
     ) {
-        $this->cookieName = $cookieName;
-        $this->cache = $cache;
-        $this->cookieParams = \array_replace(self::DEFAULT_COOKIE_PARAMS, $cookieParams) ?? [];
+        $this->cookieName   = $cookieName;
+        $this->cache        = $cache;
+        $this->cookieParams = array_replace(self::DEFAULT_COOKIE_PARAMS, $cookieParams);
 
         if ($sessionId === null) {
             $sessionId = new RandomBytes();
         }
+
         $this->sessionId = $sessionId;
     }
 
-    /**
-     * @param  ServerRequestInterface $request
-     * @param  callable               $next
-     * @return PromiseInterface
-     */
-    public function __invoke(ServerRequestInterface $request, callable $next)
+    public function __invoke(ServerRequestInterface $request, callable $next): PromiseInterface
     {
-        return $this->fetchSessionFromRequest($request)->then(function (Session $session) use ($next, $request) {
+        return $this->fetchSessionFromRequest($request)->then(function (Session $session) use ($next, $request): PromiseInterface {
             $request = $request->withAttribute(self::ATTRIBUTE_NAME, $session);
 
             return resolve(
                 $next($request)
-            )->then(function (ResponseInterface $response) use ($session) {
-                return $this->updateCache($session)->then(function () use ($response) {
-                    return $response;
-                });
-            })->then(function ($response) use ($session) {
-                $cookie = $this->getCookie($session);
+            )->then(
+                fn (ResponseInterface $response): PromiseInterface => $this->updateCache($session)->then(static fn (): ResponseInterface => $response)
+            )->then(function (ResponseInterface $response) use ($session): ResponseInterface {
+                $cookie   = $this->getCookie($session);
                 $response = $cookie->addToResponse($response);
 
                 return $response;
@@ -93,18 +78,19 @@ final class SessionMiddleware
 
     private function fetchSessionFromRequest(ServerRequestInterface $request): PromiseInterface
     {
-        $id = '';
+        $id      = '';
         $cookies = RequestCookies::createFromRequest($request);
 
         try {
-            if (!$cookies->has($this->cookieName)) {
+            if (! $cookies->has($this->cookieName)) {
                 return resolve(new Session($id, [], $this->sessionId));
             }
+
             $id = $cookies->get($this->cookieName)->getValue();
 
-            return $this->fetchSessionDataFromCache($id)->then(function (array $sessionData) use ($id) {
-                return new Session($id, $sessionData, $this->sessionId);
-            });
+            return $this->fetchSessionDataFromCache($id)->then(
+                fn (array $sessionData): Session => new Session($id, $sessionData, $this->sessionId)
+            );
         } catch (Throwable $et) {
             // Do nothing, only a not found will be thrown so generating our own id now
             // @ignoreException
@@ -119,15 +105,22 @@ final class SessionMiddleware
             return resolve([]);
         }
 
-        return $this->cache->get($id)->then(function ($result) {
+        /**
+         * @phpstan-ignore-next-line
+         * @psalm-suppress TooManyTemplateParams
+         */
+        return $this->cache->get($id)->then(static function (?array $result): array {
             if ($result === null) {
-                return resolve([]);
+                return [];
             }
 
             return $result;
         });
     }
 
+    /**
+     * @psalm-suppress TooManyTemplateParams
+     */
     private function updateCache(Session $session): PromiseInterface
     {
         foreach ($session->getOldIds() as $oldId) {
@@ -148,11 +141,12 @@ final class SessionMiddleware
         if ($session->isActive()) {
             // Only set time when expires is set in the future
             if ($cookieParams[0] > 0) {
-                $cookieParams[0] += \time();
+                $cookieParams[0] += time();
             }
 
             return new SetCookie($this->cookieName, $session->getId(), ...$cookieParams);
         }
+
         unset($cookieParams[0]);
 
         return SetCookie::thatDeletesCookie($this->cookieName, ...$cookieParams);

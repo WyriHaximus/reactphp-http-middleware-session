@@ -1,16 +1,19 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace WyriHaximus\React\Tests\Http\Middleware;
 
 use React\Cache\CacheInterface;
-use function React\Promise\all;
 use React\Promise\PromiseInterface;
+
+use function array_key_exists;
 use function React\Promise\resolve;
 
 final class InspectableArrayCache implements CacheInterface
 {
     /** @var array<string, mixed|null> */
-    private $data = [];
+    private array $data = [];
 
     /**
      * @return array<string, mixed|null>
@@ -21,53 +24,56 @@ final class InspectableArrayCache implements CacheInterface
     }
 
     /**
-     * @param  string           $key
-     * @param  mixed|null       $default
-     * @return PromiseInterface
+     * @param  mixed|null $default
      */
+    // phpcs:disable
+    // @phpstan-ignore-next-line
     public function get($key, $default = null): PromiseInterface
     {
-        if (!\array_key_exists($key, $this->data)) {
+        if (! array_key_exists($key, $this->data)) {
             return resolve($default);
         }
 
         return resolve($this->data[$key]);
     }
+    // phpcs:enable
 
     /**
-     * @param  string           $key
-     * @param  mixed            $value
-     * @param  ?float           $ttl
-     * @return PromiseInterface
+     * @param  mixed  $value
+     * @param  ?float $ttl
      */
+    // phpcs:disable
+    // @phpstan-ignore-next-line
     public function set($key, $value, $ttl = null): PromiseInterface
     {
         $this->data[$key] = $value;
 
         return resolve(true);
     }
+    // phpcs:enable
 
-    /**
-     * @param  string           $key
-     * @return PromiseInterface
-     */
+    // phpcs:disable
     public function delete($key): PromiseInterface
     {
         unset($this->data[$key]);
 
         return resolve(true);
     }
+    // phpcs:enable
 
     /**
-     * @param  array            $keys
-     * @param  mixed|null       $default
-     * @return PromiseInterface
+     * @param  array<mixed> $keys
+     * @param  mixed|null   $default
+     *
+     * @return  PromiseInterface<array<mixed>>
      */
-    public function getMultiple(array $keys, $default = null)
+    // phpcs:disable
+    // @phpstan-ignore-next-line
+    public function getMultiple(array $keys, $default = null): PromiseInterface
     {
         $items = [];
         foreach ($keys as $key) {
-            if (!\array_key_exists($key, $this->data)) {
+            if (! array_key_exists($key, $this->data)) {
                 $items[$key] = $this->data[$key];
 
                 continue;
@@ -78,51 +84,46 @@ final class InspectableArrayCache implements CacheInterface
 
         return resolve($items);
     }
+    // phpcs:enable
 
     /**
-     * @param  array            $values
-     * @param  float|null       $ttl
-     * @return PromiseInterface
+     * @param  array<mixed> $values
      */
-    public function setMultiple(array $values, $ttl = null)
+    // phpcs:disable
+    // @phpstan-ignore-next-line
+    public function setMultiple(array $values, $ttl = null): PromiseInterface
     {
         foreach ($values as $key => $value) {
-            $this->data[$key] = $value;
+            $this->data[$key] = $value; // @phpstan-ignore-line
+        }
+
+        return resolve(true);
+    }
+    // phpcs:enable
+
+    /**
+     * @param  array<mixed> $keys
+     */
+    public function deleteMultiple(array $keys): PromiseInterface
+    {
+        foreach ($keys as $key) {
+            $this->delete($key);
         }
 
         return resolve(true);
     }
 
-    /**
-     * @param  array            $keys
-     * @return PromiseInterface
-     */
-    public function deleteMultiple(array $keys)
-    {
-        $items = [];
-        foreach ($keys as $key) {
-            $items[$key] = $this->delete($key);
-        }
-
-        return all($items);
-    }
-
-    /**
-     * @return PromiseInterface
-     */
-    public function clear()
+    public function clear(): PromiseInterface
     {
         $this->data = [];
 
         return resolve(true);
     }
 
-    /**
-     * @param  string           $key
-     * @return PromiseInterface
-     */
-    public function has($key)
+    // phpcs:disable
+    public function has($key): PromiseInterface
     {
-        return resolve(\array_key_exists($key, $this->data));
+        return resolve(array_key_exists($key, $this->data));
     }
+    // phpcs:enable
 }

@@ -1,11 +1,11 @@
 # Middleware that takes care of session handling
 
-[![Build Status](https://travis-ci.org/WyriHaximus/reactphp-http-middleware-session.svg?branch=master)](https://travis-ci.org/WyriHaximus/reactphp-http-middleware-session)
-[![Latest Stable Version](https://poser.pugx.org/WyriHaximus/react-http-middleware-session/v/stable.png)](https://packagist.org/packages/WyriHaximus/react-http-middleware-session)
-[![Total Downloads](https://poser.pugx.org/WyriHaximus/react-http-middleware-session/downloads.png)](https://packagist.org/packages/WyriHaximus/react-http-middleware-session)
-[![Code Coverage](https://scrutinizer-ci.com/g/WyriHaximus/reactphp-http-middleware-session/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/WyriHaximus/reactphp-http-middleware-session/?branch=master)
-[![License](https://poser.pugx.org/WyriHaximus/react-http-middleware-session/license.png)](https://packagist.org/packages/WyriHaximus/react-http-middleware-session)
-[![PHP 7 ready](http://php7ready.timesplinter.ch/WyriHaximus/reactphp-http-middleware-clear-body/badge.svg)](https://travis-ci.org/WyriHaximus/reactphp-http-middleware-clear-body)
+![Continuous Integration](https://github.com/wyrihaximus/php-http-middleware-session/workflows/Continuous%20Integration/badge.svg)
+[![Latest Stable Version](https://poser.pugx.org/wyrihaximus/http-middleware-session/v/stable.png)](https://packagist.org/packages/wyrihaximus/http-middleware-session)
+[![Total Downloads](https://poser.pugx.org/wyrihaximus/http-middleware-session/downloads.png)](https://packagist.org/packages/wyrihaximus/http-middleware-session/stats)
+[![Code Coverage](https://coveralls.io/repos/github/WyriHaximus/php-http-middleware-session/badge.svg?branchmaster)](https://coveralls.io/github/WyriHaximus/php-http-middleware-session?branch=master)
+[![Type Coverage](https://shepherd.dev/github/WyriHaximus/php-http-middleware-session/coverage.svg)](https://shepherd.dev/github/WyriHaximus/php-http-middleware-session)
+[![License](https://poser.pugx.org/wyrihaximus/http-middleware-session/license.png)](https://packagist.org/packages/wyrihaximus/http-middleware-session)
 
 # Install
 
@@ -15,13 +15,14 @@ To install via [Composer](http://getcomposer.org/), use the command below, it wi
 composer require wyrihaximus/react-http-middleware-session
 ```
 
-This middleware takes care of session handling. It uses [`react/cache`](https://reactphp.org/cache/) for storage or 
+This middleware takes care of session handling. It uses [`react/cache`](https://reactphp.org/cache/) for storage or
 any cache handler implementing [`React\Cache\CacheInterface`](https://github.com/reactphp/react/wiki/Users#cache-implementations).
 
 # Usage
 
 ```php
-$server = new Server([
+$server = new Server(
+    $loop,
     /** Other Middleware */
     new SessionMiddleware(
         'CookieName',
@@ -32,7 +33,7 @@ $server = new Server([
             '', // domain, string, default
             false, // secure, bool, default
             false // httpOnly, bool, default
-        ], 
+        ],
     ),
     /** Other Middleware */
     function (ServerRequestInterface $request) {
@@ -42,24 +43,24 @@ $server = new Server([
         $session->setContents([
             'foo' => 'bar',
         ]);
-        
+
         // Get session contents
         var_export($session->getContents()); // Prints something like: ['foo' = 'bar']
-        
+
         return new Response();
     }
-]);
+);
 ```
 
 # Response cache
 
-Using this middleware together with [`wyrihaximus/react-http-middleware-response-cache`](https://github.com/WyriHaximus/reactphp-http-middleware-response-cache) then 
-please take a look at [`wyrihaximus/react-http-middleware-response-cache-session-cache-configuration`](https://github.com/WyriHaximus/reactphp-http-middleware-response-cache-session-cache-configuration) to 
+Using this middleware together with [`wyrihaximus/react-http-middleware-response-cache`](https://github.com/WyriHaximus/reactphp-http-middleware-response-cache) then
+please take a look at [`wyrihaximus/react-http-middleware-response-cache-session-cache-configuration`](https://github.com/WyriHaximus/reactphp-http-middleware-response-cache-session-cache-configuration) to
 ensure you don't cache responses from users with active sessions.
 
 ## To/From array
 
-In case you need to pass a session into a child process it has `toArray` and `fromArray` methods: 
+In case you need to pass a session into a child process it has `toArray` and `fromArray` methods:
 
 ```php
 $array = $session->toArray();
@@ -72,7 +73,7 @@ $session = (new Session('', [], new RandomBytes()))->fromArray($array);
 
 The MIT License (MIT)
 
-Copyright (c) 2018 Cees-Jan Kiewiet
+Copyright (c) 2020 Cees-Jan Kiewiet
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
