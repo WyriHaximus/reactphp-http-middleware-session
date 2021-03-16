@@ -48,7 +48,7 @@ final class SessionMiddlewareTest extends AsyncTestCase
                         10,
                     ],
                     [
-                        'expires=' . gmdate('D, d-M-Y H:i:s T', time() + 10),
+                        'expires=' . gmdate('D, d M Y H:i:s T', time() + 10),
                     ],
                 ];
             },
@@ -62,7 +62,7 @@ final class SessionMiddlewareTest extends AsyncTestCase
                         '/example/',
                     ],
                     [
-                        'expires=' . gmdate('D, d-M-Y H:i:s T', time() + 10),
+                        'expires=' . gmdate('D, d M Y H:i:s T', time() + 10),
                         'path=/example/',
                     ],
                 ];
@@ -78,7 +78,7 @@ final class SessionMiddlewareTest extends AsyncTestCase
                         'www.example.com',
                     ],
                     [
-                        'expires=' . gmdate('D, d-M-Y H:i:s T', time() + 10),
+                        'expires=' . gmdate('D, d M Y H:i:s T', time() + 10),
                         'path=/example/',
                         'domain=www.example.com',
                     ],
@@ -96,7 +96,7 @@ final class SessionMiddlewareTest extends AsyncTestCase
                         true,
                     ],
                     [
-                        'expires=' . gmdate('D, d-M-Y H:i:s T', time() + 10),
+                        'expires=' . gmdate('D, d M Y H:i:s T', time() + 10),
                         'path=/example/',
                         'domain=www.example.com',
                         'secure',
@@ -115,7 +115,7 @@ final class SessionMiddlewareTest extends AsyncTestCase
                         false,
                     ],
                     [
-                        'expires=' . gmdate('D, d-M-Y H:i:s T', time() + 10),
+                        'expires=' . gmdate('D, d M Y H:i:s T', time() + 10),
                         'path=/example/',
                         'domain=www.example.com',
                     ],
@@ -134,7 +134,7 @@ final class SessionMiddlewareTest extends AsyncTestCase
                         true,
                     ],
                     [
-                        'expires=' . gmdate('D, d-M-Y H:i:s T', time() + 10),
+                        'expires=' . gmdate('D, d M Y H:i:s T', time() + 10),
                         'path=/example/',
                         'domain=www.example.com',
                         'secure',
@@ -155,7 +155,7 @@ final class SessionMiddlewareTest extends AsyncTestCase
                         false,
                     ],
                     [
-                        'expires=' . gmdate('D, d-M-Y H:i:s T', time() + 10),
+                        'expires=' . gmdate('D, d M Y H:i:s T', time() + 10),
                         'path=/example/',
                         'domain=www.example.com',
                     ],
@@ -174,7 +174,7 @@ final class SessionMiddlewareTest extends AsyncTestCase
                         true,
                     ],
                     [
-                        'expires=' . gmdate('D, d-M-Y H:i:s T', time() + 10),
+                        'expires=' . gmdate('D, d M Y H:i:s T', time() + 10),
                         'path=/example/',
                         'domain=www.example.com',
                         'httponly',
@@ -206,7 +206,7 @@ final class SessionMiddlewareTest extends AsyncTestCase
                     $t,
                     sprintf(
                         '; expires=%s',
-                        gmdate('D, d-M-Y H:i:s T', time() + $t)
+                        gmdate('D, d M Y H:i:s T', time() + $t)
                     ),
                 ];
             },
@@ -220,7 +220,7 @@ final class SessionMiddlewareTest extends AsyncTestCase
                     $t,
                     sprintf(
                         '; expires=%s',
-                        gmdate('D, d-M-Y H:i:s T', time() + $t)
+                        gmdate('D, d M Y H:i:s T', time() + $t)
                     ),
                 ];
             },
@@ -234,7 +234,7 @@ final class SessionMiddlewareTest extends AsyncTestCase
                     $t,
                     sprintf(
                         '; expires=%s',
-                        gmdate('D, d-M-Y H:i:s T', time() + $t)
+                        gmdate('D, d M Y H:i:s T', time() + $t)
                     ),
                 ];
             },
@@ -407,7 +407,7 @@ final class SessionMiddlewareTest extends AsyncTestCase
 
         self::assertCount(0, $this->cache->getData());
         self::assertFalse($session->isActive());
-        self::assertSame($cookieName . '=deleted; expires=Thu, 01-Jan-1970 00:00:01 GMT', $response->getHeaderLine('Set-Cookie'));
+        self::assertSame($cookieName . '=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT', $response->getHeaderLine('Set-Cookie'));
     }
 
     public function testUpdateCacheDeletesOldIds(): void

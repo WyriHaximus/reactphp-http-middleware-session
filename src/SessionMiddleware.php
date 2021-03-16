@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace WyriHaximus\React\Http\Middleware;
 
-use HansOtt\PSR7Cookies\RequestCookies;
 use HansOtt\PSR7Cookies\SetCookie;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -39,7 +38,7 @@ final class SessionMiddleware
     private SessionIdInterface $sessionId;
 
     /**
-     * @param array<int, mixed> $cookieParams
+     * @param array<int, mixed>       $cookieParams
      */
     public function __construct(
         string $cookieName,
@@ -79,14 +78,14 @@ final class SessionMiddleware
     private function fetchSessionFromRequest(ServerRequestInterface $request): PromiseInterface
     {
         $id      = '';
-        $cookies = RequestCookies::createFromRequest($request);
+        $cookies = $request->getCookieParams();
 
         try {
-            if (! $cookies->has($this->cookieName)) {
+            if (! array_key_exists($this->cookieName, $cookies)) {
                 return resolve(new Session($id, [], $this->sessionId));
             }
 
-            $id = $cookies->get($this->cookieName)->getValue();
+            $id = $cookies[$this->cookieName];
 
             return $this->fetchSessionDataFromCache($id)->then(
                 fn (array $sessionData): Session => new Session($id, $sessionData, $this->sessionId)
