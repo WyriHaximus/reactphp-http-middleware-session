@@ -40,7 +40,7 @@ jobs:
       - supported-versions-matrix
     runs-on: ubuntu-latest
     container:
-      image: wyrihaximusnet/php:${{ matrix.php }}-zts-alpine3.12-dev-root
+      image: wyrihaximusnet/php:${{ matrix.php }}-nts-buster-dev-root
     steps:
       - uses: actions/checkout@v1
       - name: Cache composer packages
@@ -70,7 +70,7 @@ jobs:
       - supported-versions-matrix
     runs-on: ubuntu-latest
     container:
-      image: wyrihaximusnet/php:${{ matrix.php }}-zts-alpine3.12-dev-root
+      image: wyrihaximusnet/php:${{ matrix.php }}-nts-buster-dev-root
     steps:
       - uses: actions/checkout@v1
       - name: Cache composer packages
