@@ -3,6 +3,15 @@ on:
   push:
   pull_request:
 jobs:
+  supported-versions-matrix:
+    name: Supported Versions Matrix
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.supported-versions-matrix.outputs.version }}
+    steps:
+      - uses: actions/checkout@v1
+      - id: supported-versions-matrix
+        uses: WyriHaximus/github-action-composer-php-versions-in-range@v1
   generate-checks-strategy:
     name: Generate Checks
     runs-on: ubuntu-latest
@@ -24,9 +33,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php: [7.4]
+        php: ${{ fromJson(needs.supported-versions-matrix.outputs.version) }}
         composer: [lowest, current, highest]
-    needs: lint
+    needs:
+      - lint
+      - supported-versions-matrix
     runs-on: ubuntu-latest
     container:
       image: wyrihaximusnet/php:${{ matrix.php }}-zts-alpine3.12-dev-root
@@ -50,12 +61,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php: [7.4]
+        php: ${{ fromJson(needs.supported-versions-matrix.outputs.version) }}
         composer: [lowest, current, highest]
         check: ${{ fromJson(needs.generate-checks-strategy.outputs.check) }}
     needs:
       - composer-install
       - generate-checks-strategy
+      - supported-versions-matrix
     runs-on: ubuntu-latest
     container:
       image: wyrihaximusnet/php:${{ matrix.php }}-zts-alpine3.12-dev-root
