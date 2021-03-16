@@ -12,6 +12,7 @@ use React\Promise\PromiseInterface;
 use Throwable;
 use WyriHaximus\React\Http\Middleware\SessionId\RandomBytes;
 
+use function array_key_exists;
 use function React\Promise\resolve;
 use function Safe\array_replace;
 use function time;
@@ -38,7 +39,7 @@ final class SessionMiddleware
     private SessionIdInterface $sessionId;
 
     /**
-     * @param array<int, mixed>       $cookieParams
+     * @param array<int, mixed> $cookieParams
      */
     public function __construct(
         string $cookieName,
