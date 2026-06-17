@@ -1,2 +1,4 @@
 examples/credentials.php
 vendor/
+var/*
+!var/.gitkeep

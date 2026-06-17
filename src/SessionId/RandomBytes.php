@@ -9,15 +9,13 @@ use WyriHaximus\React\Http\Middleware\SessionIdInterface;
 use function bin2hex;
 use function random_bytes;
 
-final class RandomBytes implements SessionIdInterface
+final readonly class RandomBytes implements SessionIdInterface
 {
-    public const DEFAULT_LENGTH = 32;
+    public const int DEFAULT_LENGTH = 32;
 
-    private int $length;
-
-    public function __construct(int $length = self::DEFAULT_LENGTH)
+    /** @param int<1, max> $length */
+    public function __construct(private int $length = self::DEFAULT_LENGTH)
     {
-        $this->length = $length;
     }
 
     public function generate(): string

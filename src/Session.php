@@ -7,38 +7,24 @@ namespace WyriHaximus\React\Http\Middleware;
 use InvalidArgumentException;
 
 use function array_key_exists;
+use function is_int;
+use function is_string;
 
 use const PHP_SESSION_ACTIVE;
 use const PHP_SESSION_NONE;
 
+/** @api */
 final class Session
 {
-    private string $id;
-
-    /** @var array<string, mixed> */
-    private array $contents;
-
-    private SessionIdInterface $sessionId;
-
     /** @var string[] */
     private array $oldIds = [];
 
-    private int $status = PHP_SESSION_NONE;
+    private int $status;
 
-    /**
-     * @param array<string, mixed> $contents
-     */
-    public function __construct(string $id, array $contents, SessionIdInterface $sessionId)
+    /** @param array<string, mixed> $contents */
+    public function __construct(private string $id, private array $contents, private SessionIdInterface $sessionId)
     {
-        $this->id        = $id;
-        $this->contents  = $contents;
-        $this->sessionId = $sessionId;
-
-        if ($this->id === '') {
-            return;
-        }
-
-        $this->status = PHP_SESSION_ACTIVE;
+        $this->status = $this->id === '' ? PHP_SESSION_NONE : PHP_SESSION_ACTIVE;
     }
 
     public function getId(): string
@@ -46,25 +32,19 @@ final class Session
         return $this->id;
     }
 
-    /**
-     * @param array<string, mixed> $contents
-     */
+    /** @param array<string, mixed> $contents */
     public function setContents(array $contents): void
     {
         $this->contents = $contents;
     }
 
-    /**
-     * @return array<string, mixed>
-     */
+    /** @return array<string, mixed> */
     public function getContents(): array
     {
         return $this->contents;
     }
 
-    /**
-     * @return string[]
-     */
+    /** @return string[] */
     public function getOldIds(): array
     {
         return $this->oldIds;
@@ -115,9 +95,7 @@ final class Session
         return true;
     }
 
-    /**
-     * @return array<string, mixed>
-     */
+    /** @return array<string, mixed> */
     public function toArray(): array
     {
         return [
@@ -142,14 +120,25 @@ final class Session
         }
 
         $self = $this;
-        if ($clone === true) {
+        if ($clone) {
             $self = clone $this;
         }
 
-        $self->id       = $session['id'];
-        $self->contents = $session['contents'];
-        $self->oldIds   = $session['oldIds'];
-        $self->status   = $session['status'];
+        $id     = $session['id'];
+        $status = $session['status'];
+        if (! is_string($id) || ! is_int($status)) {
+            throw new InvalidArgumentException('Session array "id" must be a string and "status" must be an integer.');
+        }
+
+        /** @var array<string, mixed> $contents */
+        $contents = $session['contents'];
+        /** @var array<string> $oldIds */
+        $oldIds = $session['oldIds'];
+
+        $self->id       = $id;
+        $self->contents = $contents;
+        $self->oldIds   = $oldIds;
+        $self->status   = $status;
 
         return $self;
     }

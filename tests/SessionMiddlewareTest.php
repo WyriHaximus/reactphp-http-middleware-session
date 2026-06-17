@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace WyriHaximus\React\Tests\Http\Middleware;
 
 use Exception;
-use Prophecy\Argument;
+use Mockery;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use React\Cache\ArrayCache;
@@ -14,15 +16,17 @@ use React\Http\Message\Response;
 use React\Http\Message\ServerRequest;
 use Throwable;
 use WyriHaximus\AsyncTestUtilities\AsyncTestCase;
+use WyriHaximus\React\Http\Middleware\Session;
 use WyriHaximus\React\Http\Middleware\SessionMiddleware;
 
 use function array_shift;
 use function assert;
 use function explode;
+use function gmdate;
+use function React\Async\await;
 use function React\Promise\reject;
 use function React\Promise\resolve;
-use function Safe\gmdate;
-use function Safe\sprintf;
+use function sprintf;
 
 final class SessionMiddlewareTest extends AsyncTestCase
 {
@@ -35,167 +39,147 @@ final class SessionMiddlewareTest extends AsyncTestCase
         $this->cache = new InspectableArrayCache();
     }
 
-    /**
-     * @return iterable<int, array<int, callable>>
-     */
+    /** @return iterable<int, array<int, callable>> */
     // phpcs:disable
-    public function provideCookieLines(): iterable
+    public static function provideCookieLines(): iterable
     {
         yield [
-            static function (): array {
-                return [
-                    [
-                        10,
-                    ],
-                    [
-                        'expires=' . gmdate('D, d M Y H:i:s T', time() + 10),
-                    ],
-                ];
-            },
+            static fn(): array => [
+                [
+                    10,
+                ],
+                [
+                    'expires=' . gmdate('D, d M Y H:i:s T', time() + 10),
+                ],
+            ],
         ];
 
         yield [
-            static function (): array {
-                return [
-                    [
-                        10,
-                        '/example/',
-                    ],
-                    [
-                        'expires=' . gmdate('D, d M Y H:i:s T', time() + 10),
-                        'path=/example/',
-                    ],
-                ];
-            },
+            static fn(): array => [
+                [
+                    10,
+                    '/example/',
+                ],
+                [
+                    'expires=' . gmdate('D, d M Y H:i:s T', time() + 10),
+                    'path=/example/',
+                ],
+            ],
         ];
 
         yield [
-            static function (): array {
-                return [
-                    [
-                        10,
-                        '/example/',
-                        'www.example.com',
-                    ],
-                    [
-                        'expires=' . gmdate('D, d M Y H:i:s T', time() + 10),
-                        'path=/example/',
-                        'domain=www.example.com',
-                    ],
-                ];
-            },
+            static fn(): array => [
+                [
+                    10,
+                    '/example/',
+                    'www.example.com',
+                ],
+                [
+                    'expires=' . gmdate('D, d M Y H:i:s T', time() + 10),
+                    'path=/example/',
+                    'domain=www.example.com',
+                ],
+            ],
         ];
 
         yield [
-            static function (): array {
-                return [
-                    [
-                        10,
-                        '/example/',
-                        'www.example.com',
-                        true,
-                    ],
-                    [
-                        'expires=' . gmdate('D, d M Y H:i:s T', time() + 10),
-                        'path=/example/',
-                        'domain=www.example.com',
-                        'secure',
-                    ],
-                ];
-            },
+            static fn(): array => [
+                [
+                    10,
+                    '/example/',
+                    'www.example.com',
+                    true,
+                ],
+                [
+                    'expires=' . gmdate('D, d M Y H:i:s T', time() + 10),
+                    'path=/example/',
+                    'domain=www.example.com',
+                    'secure',
+                ],
+            ],
         ];
 
         yield [
-            static function (): array {
-                return [
-                    [
-                        10,
-                        '/example/',
-                        'www.example.com',
-                        false,
-                    ],
-                    [
-                        'expires=' . gmdate('D, d M Y H:i:s T', time() + 10),
-                        'path=/example/',
-                        'domain=www.example.com',
-                    ],
-                ];
-            },
+            static fn(): array => [
+                [
+                    10,
+                    '/example/',
+                    'www.example.com',
+                    false,
+                ],
+                [
+                    'expires=' . gmdate('D, d M Y H:i:s T', time() + 10),
+                    'path=/example/',
+                    'domain=www.example.com',
+                ],
+            ],
         ];
 
         yield [
-            static function (): array {
-                return [
-                    [
-                        10,
-                        '/example/',
-                        'www.example.com',
-                        true,
-                        true,
-                    ],
-                    [
-                        'expires=' . gmdate('D, d M Y H:i:s T', time() + 10),
-                        'path=/example/',
-                        'domain=www.example.com',
-                        'secure',
-                        'httponly',
-                    ],
-                ];
-            },
+            static fn(): array => [
+                [
+                    10,
+                    '/example/',
+                    'www.example.com',
+                    true,
+                    true,
+                ],
+                [
+                    'expires=' . gmdate('D, d M Y H:i:s T', time() + 10),
+                    'path=/example/',
+                    'domain=www.example.com',
+                    'secure',
+                    'httponly',
+                ],
+            ],
         ];
 
         yield [
-            static function (): array {
-                return [
-                    [
-                        10,
-                        '/example/',
-                        'www.example.com',
-                        false,
-                        false,
-                    ],
-                    [
-                        'expires=' . gmdate('D, d M Y H:i:s T', time() + 10),
-                        'path=/example/',
-                        'domain=www.example.com',
-                    ],
-                ];
-            },
+            static fn(): array => [
+                [
+                    10,
+                    '/example/',
+                    'www.example.com',
+                    false,
+                    false,
+                ],
+                [
+                    'expires=' . gmdate('D, d M Y H:i:s T', time() + 10),
+                    'path=/example/',
+                    'domain=www.example.com',
+                ],
+            ],
         ];
 
         yield [
-            static function (): array {
-                return [
-                    [
-                        10,
-                        '/example/',
-                        'www.example.com',
-                        false,
-                        true,
-                    ],
-                    [
-                        'expires=' . gmdate('D, d M Y H:i:s T', time() + 10),
-                        'path=/example/',
-                        'domain=www.example.com',
-                        'httponly',
-                    ],
-                ];
-            },
+            static fn(): array => [
+                [
+                    10,
+                    '/example/',
+                    'www.example.com',
+                    false,
+                    true,
+                ],
+                [
+                    'expires=' . gmdate('D, d M Y H:i:s T', time() + 10),
+                    'path=/example/',
+                    'domain=www.example.com',
+                    'httponly',
+                ],
+            ],
         ];
     }
 
     /**
-     * @return iterable<int, array<int, callable>>
+     * @return iterable<int, array<int, (callable(): array{0: int, 1: string})>>
      */
-    public function provideHeaderExpiresCombos(): iterable
+    public static function provideHeaderExpiresCombos(): iterable
     {
         yield [
-            static function (): array {
-                return [
-                    0,
-                    '',
-                ];
-            },
+            static fn(): array => [
+                0,
+                '',
+            ],
         ];
 
         yield [
@@ -242,25 +226,26 @@ final class SessionMiddlewareTest extends AsyncTestCase
     }
     // phpcs:enable
 
-    /**
-     * @dataProvider provideCookieLines
-     */
-    public function testSetCookieLine(callable $setup): void
+    /** @param (callable(): array{array<int, mixed>, array<int, string>}) $setup */
+    #[DataProvider('provideCookieLines')]
+    #[Test]
+    public function setCookieLine(callable $setup): void
     {
         self::waitUntilTheNextSecond();
 
         [$cookieParams, $cookieLineChunks] = $setup();
 
         $next = static function (ServerRequestInterface $request): ResponseInterface {
-            $request->getAttribute(SessionMiddleware::ATTRIBUTE_NAME)->begin();
+            $session = $request->getAttribute(SessionMiddleware::ATTRIBUTE_NAME);
+            assert($session instanceof Session);
+            $session->begin();
 
             return new Response();
         };
 
         $middleware = new SessionMiddleware('Elmo', $this->cache, $cookieParams);
 
-        $response = $this->await($middleware(new ServerRequest('GET', 'https://www.example.com'), $next));
-        assert($response instanceof ResponseInterface);
+        $response = await($middleware(new ServerRequest('GET', 'https://www.example.com'), $next));
 
         $cookieChunks = explode('; ', $response->getHeaderLine('Set-Cookie'));
         array_shift($cookieChunks);
@@ -268,10 +253,10 @@ final class SessionMiddlewareTest extends AsyncTestCase
         self::assertSame($cookieLineChunks, $cookieChunks);
     }
 
-    /**
-     * @dataProvider provideHeaderExpiresCombos
-     */
-    public function testCookiesExpiresBasedOnConfiguration(callable $cookieMonster): void
+    /** @param callable(): array{0: int, 1: string} $cookieMonster */
+    #[DataProvider('provideHeaderExpiresCombos')]
+    #[Test]
+    public function cookiesExpiresBasedOnConfiguration(callable $cookieMonster): void
     {
         self::waitUntilTheNextSecond();
 
@@ -281,17 +266,14 @@ final class SessionMiddlewareTest extends AsyncTestCase
         $cookieValue = 'cookies';
         $middleware  = new SessionMiddleware($cookieName, $this->cache, [$expires]);
 
-        $request = (new ServerRequest(
+        $request = new ServerRequest(
             'GET',
-            'https://www.example.com/'
-        ))->withCookieParams([$cookieName => $cookieValue]);
+            'https://www.example.com/',
+        )->withCookieParams([$cookieName => $cookieValue]);
 
-        $next = static function (): ResponseInterface {
-            return new Response();
-        };
+        $next = (static fn (): ResponseInterface => new Response());
 
-        $response = $this->await($middleware($request, $next));
-        assert($response instanceof ResponseInterface);
+        $response = await($middleware($request, $next));
 
         self::assertSame(
             [
@@ -299,19 +281,20 @@ final class SessionMiddlewareTest extends AsyncTestCase
                     $cookieName . '=' . $cookieValue . $cookieHeaderSuffix,
                 ],
             ],
-            $response->getHeaders()
+            $response->getHeaders(),
         );
     }
 
-    public function testSessionDoesntExistsAndNotStartingOne(): void
+    #[Test]
+    public function sessionDoesntExistsAndNotStartingOne(): void
     {
         $cookieName = 'CookieMonster';
         $middleware = new SessionMiddleware($cookieName, $this->cache);
 
-        $request = (new ServerRequest(
+        $request = new ServerRequest(
             'GET',
-            'https://www.example.com/'
-        ));
+            'https://www.example.com/',
+        );
         $next    = static function (ServerRequestInterface $request) use (&$session): ResponseInterface {
             $session = $request->getAttribute(SessionMiddleware::ATTRIBUTE_NAME);
 
@@ -320,21 +303,24 @@ final class SessionMiddlewareTest extends AsyncTestCase
 
         $middleware($request, $next);
 
+        self::assertInstanceOf(Session::class, $session);
         self::assertCount(0, $this->cache->getData());
         self::assertFalse($session->isActive());
     }
 
-    public function testSessionDoesntExistsAndStartingOne(): void
+    #[Test]
+    public function sessionDoesntExistsAndStartingOne(): void
     {
         $cookieName = 'CookieMonster';
         $middleware = new SessionMiddleware($cookieName, $this->cache);
 
-        $request = (new ServerRequest(
+        $request = new ServerRequest(
             'GET',
-            'https://www.example.com/'
-        ));
+            'https://www.example.com/',
+        );
         $session = null;
         $next    = static function (ServerRequestInterface $request) use (&$session): ResponseInterface {
+            self::assertInstanceOf(Session::class, $request->getAttribute(SessionMiddleware::ATTRIBUTE_NAME));
             $request->getAttribute(SessionMiddleware::ATTRIBUTE_NAME)->begin();
             $request->getAttribute(SessionMiddleware::ATTRIBUTE_NAME)->setContents(['foo' => 'bar']);
             $session = $request->getAttribute(SessionMiddleware::ATTRIBUTE_NAME);
@@ -344,6 +330,7 @@ final class SessionMiddlewareTest extends AsyncTestCase
 
         $middleware($request, $next);
 
+        self::assertInstanceOf(Session::class, $session);
         self::assertCount(1, $this->cache->getData());
         self::assertTrue($session->isActive());
         self::assertSame([
@@ -351,81 +338,87 @@ final class SessionMiddlewareTest extends AsyncTestCase
         ], $this->cache->getData());
     }
 
-    public function testSessionExistsAndKeepingItAlive(): void
+    #[Test]
+    public function sessionExistsAndKeepingItAlive(): void
     {
-        $contents   = ['Sand'];
+        $contents   = ['type' => 'Sand'];
         $cookieName = 'CookieMonster';
         $this->cache->set('cookies', ['Chocolate Chip']);
         $middleware = new SessionMiddleware($cookieName, $this->cache);
 
-        $request = (new ServerRequest(
+        $request = new ServerRequest(
             'GET',
-            'https://www.example.com/'
-        ))->withCookieParams([$cookieName => 'cookies']);
+            'https://www.example.com/',
+        )->withCookieParams([$cookieName => 'cookies']);
 
         $session = null;
         $next    = static function (ServerRequestInterface $request) use ($contents, &$session): ResponseInterface {
+            self::assertInstanceOf(Session::class, $request->getAttribute(SessionMiddleware::ATTRIBUTE_NAME));
             $request->getAttribute(SessionMiddleware::ATTRIBUTE_NAME)->setContents($contents);
             $session = $request->getAttribute(SessionMiddleware::ATTRIBUTE_NAME);
 
             return new Response();
         };
 
-        $response = $this->await($middleware($request, $next));
-        assert($response instanceof ResponseInterface);
+        $response = await($middleware($request, $next));
 
-        $sandCoookies = $this->await($this->cache->get('cookies'));
+        $sandCoookies = await($this->cache->get('cookies'));
 
+        self::assertInstanceOf(Session::class, $session);
         self::assertCount(1, $this->cache->getData());
         self::assertTrue($session->isActive());
         self::assertSame($contents, $sandCoookies);
         self::assertSame($cookieName . '=cookies', $response->getHeaderLine('Set-Cookie'));
     }
 
-    public function testSessionExistsAndEndingIt(): void
+    #[Test]
+    public function sessionExistsAndEndingIt(): void
     {
         $cookieName = 'CookieMonster';
         $cache      = new ArrayCache();
         $cache->set('cookies', ['Chocolate Chip']);
         $middleware = new SessionMiddleware($cookieName, $this->cache);
 
-        $request = (new ServerRequest(
+        $request = new ServerRequest(
             'GET',
-            'https://www.example.com/'
-        ))->withCookieParams([$cookieName => 'cookies']);
+            'https://www.example.com/',
+        )->withCookieParams([$cookieName => 'cookies']);
 
         $session = null;
         $next    = static function (ServerRequestInterface $request) use (&$session): ResponseInterface {
+            self::assertInstanceOf(Session::class, $request->getAttribute(SessionMiddleware::ATTRIBUTE_NAME));
             $request->getAttribute(SessionMiddleware::ATTRIBUTE_NAME)->end();
             $session = $request->getAttribute(SessionMiddleware::ATTRIBUTE_NAME);
 
             return new Response();
         };
 
-        $response = $this->await($middleware($request, $next));
-        assert($response instanceof ResponseInterface);
+        $response = await($middleware($request, $next));
 
+        self::assertInstanceOf(Session::class, $session);
         self::assertCount(0, $this->cache->getData());
         self::assertFalse($session->isActive());
         self::assertSame($cookieName . '=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT', $response->getHeaderLine('Set-Cookie'));
     }
 
-    public function testUpdateCacheDeletesOldIds(): void
+    #[Test]
+    public function updateCacheDeletesOldIds(): void
     {
-        $cache = $this->prophesize(CacheInterface::class);
-        $cache->get(Argument::any())->shouldNotBeCalled();
-        $cache->set(Argument::any(), Argument::any())->shouldBeCalled();
-        $cache->delete(Argument::any())->shouldBeCalled()->willReturn(resolve(true));
+        $cache = Mockery::mock(CacheInterface::class);
+        $cache->shouldReceive('get')->never();
+        $cache->shouldReceive('set')->once();
+        $cache->shouldReceive('delete')->twice()->andReturn(resolve(true));
 
         $cookieName = 'CookieMonster';
-        $middleware = new SessionMiddleware($cookieName, $cache->reveal());
+        $middleware = new SessionMiddleware($cookieName, $cache);
 
         $request = new ServerRequest(
             'GET',
-            'https://www.example.com/'
+            'https://www.example.com/',
         );
 
         $next = static function (ServerRequestInterface $request): ResponseInterface {
+            self::assertInstanceOf(Session::class, $request->getAttribute(SessionMiddleware::ATTRIBUTE_NAME));
             $request->getAttribute(SessionMiddleware::ATTRIBUTE_NAME)->begin();
             $request->getAttribute(SessionMiddleware::ATTRIBUTE_NAME)->regenerate();
             $request->getAttribute(SessionMiddleware::ATTRIBUTE_NAME)->regenerate();
@@ -433,50 +426,48 @@ final class SessionMiddlewareTest extends AsyncTestCase
             return new Response();
         };
 
-        $this->await($middleware($request, $next));
+        await($middleware($request, $next));
     }
 
-    public function testASessionIdIsAlwaysCheckedForInTheCache(): void
+    #[Test]
+    public function aSessionIdIsAlwaysCheckedForInTheCache(): void
     {
-        $cache = $this->prophesize(CacheInterface::class);
-        $cache->get('cookies')->shouldBeCalled();
-        $cache->set(Argument::any(), Argument::any())->shouldBeCalled();
+        $cache = Mockery::mock(CacheInterface::class);
+        $cache->shouldReceive('get')->with('cookies')->once();
+        $cache->shouldReceive('set')->once();
 
         $cookieName = 'CookieMonster';
-        $middleware = new SessionMiddleware($cookieName, $cache->reveal());
+        $middleware = new SessionMiddleware($cookieName, $cache);
 
-        $request = (new ServerRequest(
+        $request = new ServerRequest(
             'GET',
-            'https://www.example.com/'
-        ))->withCookieParams([$cookieName => 'cookies']);
+            'https://www.example.com/',
+        )->withCookieParams([$cookieName => 'cookies']);
 
-        $next = static function (): ResponseInterface {
-            return new Response();
-        };
+        $next = (static fn (): ResponseInterface => new Response());
 
-        $this->await($middleware($request, $next));
+        await($middleware($request, $next));
     }
 
-    public function testAnErrorFromTheCacheShouldBubbleUp(): void
+    #[Test]
+    public function anErrorFromTheCacheShouldBubbleUp(): void
     {
         self::expectException(Throwable::class);
         self::expectExceptionMessage('Error on the cache layer');
 
-        $cache = $this->prophesize(CacheInterface::class);
-        $cache->get('cookies')->shouldBeCalled()->willReturn(reject(new Exception('Error on the cache layer')));
+        $cache = Mockery::mock(CacheInterface::class);
+        $cache->shouldReceive('get')->with('cookies')->once()->andReturn(reject(new Exception('Error on the cache layer')));
 
         $cookieName = 'CookieMonster';
-        $middleware = new SessionMiddleware($cookieName, $cache->reveal());
+        $middleware = new SessionMiddleware($cookieName, $cache);
 
-        $request = (new ServerRequest(
+        $request = new ServerRequest(
             'GET',
-            'https://www.example.com/'
-        ))->withCookieParams([$cookieName => 'cookies']);
+            'https://www.example.com/',
+        )->withCookieParams([$cookieName => 'cookies']);
 
-        $next = static function (): ResponseInterface {
-            return new Response();
-        };
+        $next = (static fn (): ResponseInterface => new Response());
 
-        $this->await($middleware($request, $next));
+        await($middleware($request, $next));
     }
 }

@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace WyriHaximus\React\Tests\Http\Middleware;
 
 use InvalidArgumentException;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 use WyriHaximus\AsyncTestUtilities\AsyncTestCase;
 use WyriHaximus\React\Http\Middleware\Session;
 use WyriHaximus\React\Http\Middleware\SessionId\RandomBytes;
@@ -13,18 +15,17 @@ use function bin2hex;
 use function random_bytes;
 use function strlen;
 
-/**
- * @internal
- */
 final class SessionTest extends AsyncTestCase
 {
-    public function testId(): void
+    #[Test]
+    public function id(): void
     {
         $session = new Session('id', [], new RandomBytes());
         self::assertSame('id', $session->getId());
     }
 
-    public function testData(): void
+    #[Test]
+    public function data(): void
     {
         $dataFirst = ['a' => 'b'];
 
@@ -36,7 +37,8 @@ final class SessionTest extends AsyncTestCase
         self::assertSame($dataSecond, $session->getContents());
     }
 
-    public function testState(): void
+    #[Test]
+    public function state(): void
     {
         $session = new Session('', [], new RandomBytes());
         self::assertFalse($session->isActive());
@@ -79,7 +81,8 @@ final class SessionTest extends AsyncTestCase
         self::assertSame([], $session->getContents());
     }
 
-    public function testToFromArray(): void
+    #[Test]
+    public function toFromArray(): void
     {
         $session = new Session('', [], new RandomBytes());
 
@@ -90,7 +93,7 @@ final class SessionTest extends AsyncTestCase
                 'oldIds' => [],
                 'status' => 1,
             ],
-            $session->toArray()
+            $session->toArray(),
         );
 
         $session->begin();
@@ -102,7 +105,7 @@ final class SessionTest extends AsyncTestCase
                 'oldIds' => [],
                 'status' => 2,
             ],
-            $session->toArray()
+            $session->toArray(),
         );
 
         $newSession = $session->fromArray($session->toArray());
@@ -110,7 +113,8 @@ final class SessionTest extends AsyncTestCase
         self::assertSame($session->toArray(), $newSession->toArray());
     }
 
-    public function testToFromArrayNoClone(): void
+    #[Test]
+    public function toFromArrayNoClone(): void
     {
         $session = new Session('', [], new RandomBytes());
 
@@ -121,7 +125,7 @@ final class SessionTest extends AsyncTestCase
                 'oldIds' => [],
                 'status' => 1,
             ],
-            $session->toArray()
+            $session->toArray(),
         );
 
         $session->begin();
@@ -133,7 +137,7 @@ final class SessionTest extends AsyncTestCase
                 'oldIds' => [],
                 'status' => 2,
             ],
-            $session->toArray()
+            $session->toArray(),
         );
 
         $newSession = $session->fromArray($session->toArray(), false);
@@ -141,10 +145,8 @@ final class SessionTest extends AsyncTestCase
         self::assertSame($session->toArray(), $newSession->toArray());
     }
 
-    /**
-     * @return iterable<int, array<int, array<string, string>>>
-     */
-    public function provideSessionArrayWithMissingItems(): iterable
+    /** @return iterable<int, array<int, array<string, string>>> */
+    public static function provideSessionArrayWithMissingItems(): iterable
     {
         yield [
             [
@@ -179,18 +181,17 @@ final class SessionTest extends AsyncTestCase
         ];
     }
 
-    /**
-     * @param array<string, string> $session
-     *
-     * @dataProvider provideSessionArrayWithMissingItems
-     */
-    public function testFromArrayThrowsOnMissingElements(array $session): void
+    /** @param array<string, string> $session */
+    #[DataProvider('provideSessionArrayWithMissingItems')]
+    #[Test]
+    public function fromArrayThrowsOnMissingElements(array $session): void
     {
         self::expectException(InvalidArgumentException::class);
-        (new Session('', [], new RandomBytes()))->fromArray($session);
+        new Session('', [], new RandomBytes())->fromArray($session);
     }
 
-    public function testRegenerateShouldOnlyRegenerateWhenSessionIsActive(): void
+    #[Test]
+    public function regenerateShouldOnlyRegenerateWhenSessionIsActive(): void
     {
         $session = new Session('', [], new RandomBytes());
 

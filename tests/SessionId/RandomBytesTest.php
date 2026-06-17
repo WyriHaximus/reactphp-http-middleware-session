@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace WyriHaximus\React\Tests\Http\Middleware\SessionId;
 
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 use WyriHaximus\AsyncTestUtilities\AsyncTestCase;
 use WyriHaximus\React\Http\Middleware\SessionId\RandomBytes;
 
@@ -11,15 +13,10 @@ use function range;
 use function Safe\hex2bin;
 use function strlen;
 
-/**
- * @internal
- */
 final class RandomBytesTest extends AsyncTestCase
 {
-    /**
-     * @return iterable<array<int>>
-     */
-    public function provideSizes(): iterable
+    /** @return iterable<array{int<1, max>}> */
+    public static function provideSizes(): iterable
     {
         yield [RandomBytes::DEFAULT_LENGTH];
 
@@ -28,10 +25,10 @@ final class RandomBytesTest extends AsyncTestCase
         }
     }
 
-    /**
-     * @dataProvider provideSizes
-     */
-    public function testGenerate(int $size): void
+    /** @param int<1, max> $size */
+    #[DataProvider('provideSizes')]
+    #[Test]
+    public function generate(int $size): void
     {
         $randomBytes = new RandomBytes($size);
         for ($i = 0; $i < 15; $i++) {
