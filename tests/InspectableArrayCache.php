@@ -12,22 +12,17 @@ use function React\Promise\resolve;
 
 final class InspectableArrayCache implements CacheInterface
 {
-    /** @var array<string, mixed|null> */
+    /** @var array<string, mixed> */
     private array $data = [];
 
-    /**
-     * @return array<string, mixed|null>
-     */
+    /** @return array<string, mixed> */
     public function getData(): array
     {
         return $this->data;
     }
 
-    /**
-     * @param  mixed|null $default
-     */
+    /** @param  mixed $default */
     // phpcs:disable
-    // @phpstan-ignore-next-line
     public function get($key, $default = null): PromiseInterface
     {
         if (! array_key_exists($key, $this->data)) {
@@ -43,7 +38,6 @@ final class InspectableArrayCache implements CacheInterface
      * @param  ?float $ttl
      */
     // phpcs:disable
-    // @phpstan-ignore-next-line
     public function set($key, $value, $ttl = null): PromiseInterface
     {
         $this->data[$key] = $value;
@@ -62,13 +56,12 @@ final class InspectableArrayCache implements CacheInterface
     // phpcs:enable
 
     /**
-     * @param  array<mixed> $keys
-     * @param  mixed|null   $default
+     * @param  array<string> $keys
+     * @param  mixed          $default
      *
      * @return  PromiseInterface<array<mixed>>
      */
     // phpcs:disable
-    // @phpstan-ignore-next-line
     public function getMultiple(array $keys, $default = null): PromiseInterface
     {
         $items = [];
@@ -86,11 +79,8 @@ final class InspectableArrayCache implements CacheInterface
     }
     // phpcs:enable
 
-    /**
-     * @param  array<mixed> $values
-     */
+    /** @param  array<mixed> $values */
     // phpcs:disable
-    // @phpstan-ignore-next-line
     public function setMultiple(array $values, $ttl = null): PromiseInterface
     {
         foreach ($values as $key => $value) {
@@ -101,9 +91,7 @@ final class InspectableArrayCache implements CacheInterface
     }
     // phpcs:enable
 
-    /**
-     * @param  array<mixed> $keys
-     */
+    /** @param  array<string> $keys */
     public function deleteMultiple(array $keys): PromiseInterface
     {
         foreach ($keys as $key) {

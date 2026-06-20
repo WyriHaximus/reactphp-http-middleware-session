@@ -1,12 +1,10 @@
 parameters:
+	level: max
+	paths:
+		- ../../etc
+		- ../../src
+		- ../../tests
 	ignoreErrors:
 		- '#Constructor in [a-zA-Z0-9\\_]+ has parameter \$[a-zA-Z0-9_]+ with default value.#'
 		- '#Method [a-zA-Z0-9\\_]+::[a-zA-Z0-9_]+\(\) has parameter \$[a-zA-Z0-9_]+ with a nullable type declaration.#'
 		- '#Method [a-zA-Z0-9\\_]+::[a-zA-Z0-9_]+\(\) has parameter \$[a-zA-Z0-9_]+ with null as default value.#'
-		- '#In method \"WyriHaximus\\React\\Http\\Middleware\\SessionMiddleware::fetchSessionFromRequest\", caught \"Throwable\" must be rethrown.#'
-	ergebnis:
-		classesAllowedToBeExtended:
-			- ApiClients\Tools\TestUtilities\TestCase
-
-includes:
-	- vendor/wyrihaximus/async-test-utilities/rules.neon
