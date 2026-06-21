@@ -9,8 +9,8 @@ use PHPUnit\Framework\Attributes\Test;
 use WyriHaximus\AsyncTestUtilities\AsyncTestCase;
 use WyriHaximus\React\Http\Middleware\SessionId\RandomBytes;
 
+use function hex2bin;
 use function range;
-use function Safe\hex2bin;
 use function strlen;
 
 final class RandomBytesTest extends AsyncTestCase
@@ -34,6 +34,7 @@ final class RandomBytesTest extends AsyncTestCase
         for ($i = 0; $i < 15; $i++) {
             $id = $randomBytes->generate();
             $id = hex2bin($id);
+            self::assertIsString($id);
             self::assertSame($size, strlen($id));
         }
     }
