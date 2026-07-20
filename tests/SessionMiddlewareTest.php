@@ -453,7 +453,7 @@ final class SessionMiddlewareTest extends AsyncTestCase
     public function anErrorFromTheCacheShouldBubbleUp(): void
     {
         self::expectException(Throwable::class);
-        self::expectExceptionMessage('Error on the cache layer');
+        self::expectExceptionMessageIsOrContains('Error on the cache layer');
 
         $cache = Mockery::mock(CacheInterface::class);
         $cache->shouldReceive('get')->with('cookies')->once()->andReturn(reject(new Exception('Error on the cache layer')));
