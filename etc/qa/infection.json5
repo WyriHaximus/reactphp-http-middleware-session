@@ -11,5 +11,6 @@
         "json": "../../var/infection.json",
         "perMutator": "../../var/infection-per-mutator.md",
         "github": true
-    }
+    },
+    "threads": 64
 }
